@@ -1,0 +1,74 @@
+
+//Here is the code which was written for the first time at 30th may 2022
+
+struct S_T
+{
+
+
+    ll tree[N];
+    void initi(int node,int b,int e){
+
+        if(b==e){
+            tree[node] = 0;
+            return;
+        }
+        int left,right,mid;
+
+        left = node*2;
+        right = left + 1;
+        mid = (b+e)/2;
+        initi(left,b,mid);
+        initi(right,mid+1,e);
+        tree[node] = tree[left] + tree[right];
+    }
+
+
+    void stu(int node,int b,int e,int i,int j,int newval)
+    {
+
+        if(i>e || j<b)
+        {
+            return;
+        }
+        if(b==e)
+        {
+
+            tree[node] = newval;
+
+            return;
+        }
+        int left,right,mid;
+
+        left = node*2;
+        right = left+1;
+
+        mid = (b+e)/2;
+        stu(left,b,mid,i,j,newval);
+        stu(right,mid+1,e,i,j,newval);
+        tree[node] = tree[left] + tree[right];
+
+
+    }
+
+    ll stq(int node,int b,int e,int i,int j)
+    {
+
+        if(i>e || j<b)return 0;
+        if(b>=i && e<=j)return tree[node];
+        int left,right,mid,p1,p2;
+
+        left = node*2;
+        right = left + 1;
+
+        mid = (b+e)/2;
+
+        p1 = stq(left,b,mid,i,j);
+        p2 = stq(right,mid+1,e,i,j);
+
+        return p1+p2;
+
+
+    }
+
+
+}stt[2];
