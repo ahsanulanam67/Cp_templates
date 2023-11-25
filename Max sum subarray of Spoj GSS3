@@ -1,0 +1,140 @@
+Problem link:
+https://www.spoj.com/problems/GSS3/
+  //It took a lot of time to learn this so ,try not to forget it
+solution:
+
+#include<bits/stdc++.h>
+using namespace std;
+#define ll                      long long int
+#define ld                      long double
+#define Saboj4632               ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0)
+#define lf                      (nd*2)
+#define rt                      (nd*2)+1
+const int N                     = (int)1e5;
+#define INF                     1e11
+
+struct {
+
+    ll ls=0,rs = 0, s = 0,ms= 0;
+
+}tree[N*4];
+struct Tr{
+
+    ll ls=INT_MIN,rs = INT_MIN, s = INT_MIN,ms = INT_MIN;
+
+};
+ll a[N];
+void build(ll nd,ll b,ll e){
+
+    if(b==e){
+
+        tree[nd].s = a[b];
+        tree[nd].ls = a[b];
+        tree[nd].rs = a[b];
+        tree[nd].ms = a[b];
+        return;
+    }
+
+    ll mid = (b+e)/2;
+    build(lf,b,mid);
+    build(rt,mid+1,e);
+
+    tree[nd].s = tree[lf].s + tree[rt].s;
+    tree[nd].ls = max(tree[lf].s+tree[rt].ls,tree[lf].ls);
+    tree[nd].rs = max(tree[lf].rs+tree[rt].s,tree[rt].rs);
+    tree[nd].ms = max({tree[lf].rs+tree[rt].ls,tree[lf].ms,tree[rt].ms});
+
+}
+void update(ll nd,ll b,ll e,ll l,ll r,ll val){
+
+
+    if(b>r || l>e)return;
+    if(b>=l && e<=r){
+
+        tree[nd].s = val;
+        tree[nd].ls = val;
+        tree[nd].rs = val;
+        tree[nd].ms = val;
+        return;
+    }
+     ll mid = (b+e)/2;
+    update(lf,b,mid,l,r,val);
+    update(rt,mid+1,e,l,r,val);
+    tree[nd].s = tree[lf].s + tree[rt].s;
+    tree[nd].ls = max(tree[lf].s+tree[rt].ls,tree[lf].ls);
+    tree[nd].rs = max(tree[lf].rs+tree[rt].s,tree[rt].rs);
+    tree[nd].ms = max({tree[lf].rs+tree[rt].ls,tree[lf].ms,tree[rt].ms});
+}
+Tr query(ll nd,ll b,ll e,ll l,ll r){
+
+
+    if(b>r || l>e){
+    Tr tr;
+    return tr ;
+    }
+
+
+    if(b>=l && e<=r)
+    {
+        Tr tr;
+        tr.s = tree[nd].s;
+        tr.ls = tree[nd].ls;
+        tr.rs = tree[nd].rs;
+        tr.ms = tree[nd].ms;
+        return tr;
+    }
+
+    ll mid = (b+e)/2;
+
+    ll x=0,y=0;
+
+    Tr trr1,trr2,trr3;
+    trr1 = query(lf,b,mid,l,r);
+    trr2 = query(rt,mid+1,e,l,r);
+    trr3.s = trr1.s + trr2.s;
+    trr3.ls = max({trr1.ls,trr1.s+trr2.ls});
+    trr3.rs = max({trr2.rs,trr2.s + trr1.rs});
+    trr3.ms = max({trr1.ms,trr2.ms,trr1.rs+trr2.ls});
+    return trr3;
+}
+
+void akam()
+{
+    ll n,i,j,c=0,x,y,k,ans=0,sum=0;
+
+    //cout<<"Case "<<tst<<": ";
+    cin>>n;
+
+    for(i=1;i<=n;i++)cin>>a[i];
+
+    build(1,1,n);
+
+    cin>>k;
+
+    for(i=0;i<k;i++){
+
+        cin>>x;
+        if(x==0){
+            cin>>x>>y;
+            update(1,1,n,x,x,y);
+        }
+        else{
+            cin>>x>>y;
+            Tr tr = query(1,1,n,x,y);
+            cout<<tr.ms<<endl;
+        }
+    }
+}
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    ll tst =0;
+
+   // test
+    akam();
+
+    return 0;
+
+}
