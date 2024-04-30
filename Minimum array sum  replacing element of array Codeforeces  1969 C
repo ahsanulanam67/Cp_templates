@@ -48,7 +48,7 @@ const int N                     = (int)1e10;
 //ll LIS(vector<ll> const& v){ll n = v.size();const ll INF = 1e10;vecl gdp(n+1,INF);gdp[0] = -INF;for(ll i=0;i<n;i++){ll l = upper_bound(gdp.begin(),gdp.end(),v[i])-gdp.begin();if(gdp[l-1]<v[i] && v[i]<gdp[l]){gdp[l] = v[i];}}for(ll i=n;i>=0;i--){if(gdp[i]<INF){n = i;break;}}return n;}
 
 
-ll gdp[100001][11];
+ll gdp[300001][11];
 ll n,k;
 ll lagadp(ll pos,ll rem,ll *a){ ///Jodi arrayr element replace kore minimum sum ber korte hoi
 
@@ -78,11 +78,17 @@ void akam()
     ll i,j,c=0,x,y,ans=0,sum=0;
 
     //cout<<"Case "<<tst<<": ";
-    memset(gdp,-1,sizeof(gdp));
+
     cin>>n>>k;
 
+    for(i=0;i<=n;i++){
+        for(j=0;j<=k;j++){
+            gdp[i][j] = -1;
+        }
+    }
+    
     ll a[n+1];
-    for(i=1;i<=n;i++){
+    for(i=1;i <= n;i++){
         cin>>a[i];
     }
 
