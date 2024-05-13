@@ -30,7 +30,7 @@ struct Trie{
 
             int ch = s[i] - 'a';
 
-            if(cur->nxt[ch] != NULL)
+            if(cur->nxt[ch] == NULL)
                 cur->nxt[ch] = new node();
             cur = cur->nxt[ch];
         }
