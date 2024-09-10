@@ -1,0 +1,211 @@
+/*______________________________________________Bismillahir Rahmanir Rahim____________________________________________
+
+
+            .----------------.  .----------------.  .----------------.  .----------------.  .----------------.|    |
+|            | .--------------. || .--------------. || .--------------. || .--------------. || .--------------. |    |
+|            | |    _______   | || |      __      | || |   ______     | || |     ____     | || |     _____    | |    |
+|            | |   /  ___  |  | || |     /  \     | || |  |_   _ \    | || |   .'    `.   | || |    |_   _|   | |    |
+|            | |  |  (__ \_|  | || |    / /\ \    | || |    | |_) |   | || |  /  .--.  \  | || |      | |     | |    |
+|            | |   '.___`-.   | || |   / ____ \   | || |    |  __'.   | || |  | |    | |  | || |   _  | |     | |    |
+|            | |  |`\____) |  | || | _/ /    \ \_ | || |   _| |__) |  | || |  \  `--'  /  | || |  | |_' |     | |    |
+|            | |  |_______.'  | || ||____|  |____|| || |  |_______/   | || |   `.____.'   | || |  `.___.'     | |    |
+|            | |              | || |              | || |              | || |              | || |              | |    |
+|            | '--------------' || '--------------' || '--------------' || '--------------' || '--------------' |    |
+|            |'----------------'  '----------------'  '----------------'  '----------------'  '----------------'|    |
+|                                                                                                                    |
+|                                              Ahsanul Anam Saboj
+|                                              Department of CSE
+|                                              Comilla University                                                    |
+|                                              Email : ahsanulanamsaboj1999@gmail.com                                |
+|                         _____________________Something is going to be happened ___________________                   |
+|___________________________________________________________________________________________________________________*/
+#include<bits/stdc++.h>
+using namespace std;
+#define Start_by_the_grace_of_allah        int main()
+#define next_Time_INsha_ALLAH               return 0;
+#define ll                      long long int
+#define ld                      long double
+#define mod                     1000000007
+#define test                    int tt;cin>>tt;while(tt--)
+#define YES                     cout<<"YES"<<endl
+#define NO                      cout<<"NO"<<endl
+#define olta(a)                 reverse(a.begin(),a.end())
+#define F                       first
+#define S                       second
+#define pb(x)                   push_back(x)
+#define mp(x,y)                 make_pair(x,y)
+#define veci                    vector<int>
+#define vecl                    vector<long long>
+#define vp                      vector<pair<ll, ll> >
+#define v_min(a)                *min_element(a.begin(),a.end())
+#define v_max(a)                *max_element(a.begin(),a.end())
+#define v_mini(v)               min_element(v.begin(),v.end()) - v.begin();
+#define v_maxi(v)               max_element(v.begin(),v.end()) - v.begin();
+#define v_sum(a)                accumulate(a.begin(),a.end(),0)
+#define un(a)                   a.erase(unique(a.begin(),a.end()),a.end())
+#define delete(a)               a.erase(a.begin(),a.end())
+#define Sort(a)                 sort(a.begin(),a.end())
+#define is(a)                   is_sorted(a.begin(),a.end())
+#define Saboj4632               ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0)
+#define gcd(a,b)                __gcd(a,b)
+#define lcm(a,b)                ((a)*(b))/gcd(a,b)
+#define pi                      3.141592653589793
+#define md                      1000000050
+#define ull                     unsigned ll
+const int N                     = (int)1e6;
+#define INF                     1e11
+//vector<ll>prime;
+//bool mark[1000003];
+//void sieve(ll n){ll i,j;mark[1]=1;for(i=4; i<=n; i+=2)mark[i]=1;prime.push_back(2);for(i=3; i<=n; i+=2){if(!mark[i]){prime.push_back(i);if(i*i<=n){for(j=i*i; j<=n; j+=(i*2))mark[j]=1;}}}}
+//map<ll,ll>Factor;
+//void Primefactorize(ll n){for(ll i=0; i<prime.size() && prime[i]*prime[i]<=n; i++){if(n%prime[i] == 0){while(n%prime[i] == 0){Factor[prime[i]]++;n/=prime[i];}}}if(n>1){Factor[n]++;}}
+//(to print without sieve)--// void primeFactors(ll n){while (n % 2 == 0){cout << 2 << " ";n = n/2;}for (ll i = 3; i <= sqrt(n); i = i + 2){while (n % i == 0){cout << i << " ";n = n/i;}}if (n > 2)cout << n << " ";}
+//mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
+
+struct Node
+{
+    ll sub_sum = 0;
+    ll tot_sum = 0;
+    ll pre_sum = 0;
+    ll suf_sum = 0;
+} tree[N];
+ll arr[N],lazy[N];
+
+//void lazy_update(ll node,ll b,ll e){ //পোাশডাউন ওয়েতে কাজ করে ।
+//
+//
+//    tree[node] += ((e-b+1)*lazy[node]);
+//    if(b!=e){           // ‍same na hole children e popagate value jug korbo
+//        ll left = node<<1;
+//        ll right = left+1;
+//        lazy[left] += lazy[node];
+//        lazy[right] += lazy[node];
+//    }
+//    lazy[node] = 0; // node er propagate zero kore dibo update er pore
+//
+//}
+
+void initi(ll node,ll b,ll e)
+{
+
+    if(b==e)
+    {
+        //cout<<node<<" "<<" saboj "<<b<<" BB EE "<<e<<endl;
+        tree[node].tot_sum = arr[b];
+        tree[node].sub_sum = arr[b];
+        tree[node].pre_sum = arr[b];
+        tree[node].suf_sum = arr[b];
+        return;
+    }
+    int left,right,mid;
+
+    left = node*2;
+    right = left + 1;
+    mid = (b+e)/2;
+    initi(left,b,mid);
+    initi(right,mid+1,e);
+    //  cout<<node<<" nodde"<<endl;
+    tree[node].tot_sum = tree[left].tot_sum + tree[right].tot_sum;
+    tree[node].sub_sum = max(tree[left].sub_sum,max(tree[right].sub_sum, tree[left].suf_sum + tree[right].pre_sum));
+    tree[node].pre_sum = max(tree[left].pre_sum, tree[left].tot_sum + tree[right].pre_sum);
+    tree[node].suf_sum = max(tree[right].suf_sum, tree[left].suf_sum + tree[right].tot_sum);
+
+
+
+}
+
+
+void stu(ll node,ll b,ll e,ll i,ll j,ll newval)
+{
+
+    // if(lazy[node]!=0)lazy_update(node,b,e);
+    if(i>e || j<b)
+    {
+        return;
+    }
+    if(b==e)
+    {
+        //lazy[node] += newval;
+        // lazy_update(node,b,e);
+        tree[node].tot_sum = newval;
+        tree[node].sub_sum = newval;
+        tree[node].pre_sum = newval;
+        tree[node].suf_sum = newval;
+        // cout<<"Saboj "<<tree[node].sub_sum<<endl;
+        return;
+    }
+    ll left,right,mid;
+
+    left = node*2;
+    right = left+1;
+
+    mid = (b+e)/2;
+    stu(left,b,mid,i,j,newval);
+    stu(right,mid+1,e,i,j,newval);
+    tree[node].tot_sum = tree[left].tot_sum + tree[right].tot_sum;
+    tree[node].sub_sum = max(tree[left].sub_sum,max(tree[right].sub_sum, tree[left].suf_sum + tree[right].pre_sum));
+    tree[node].pre_sum = max(tree[left].pre_sum, tree[left].tot_sum + tree[right].pre_sum);
+    tree[node].suf_sum = max(tree[right].suf_sum, tree[left].suf_sum + tree[right].tot_sum);
+
+
+
+}
+//ll stq(ll node,ll b,ll e,ll i,ll j)
+//{
+//    // if(lazy[node]!=0)lazy_update(node,b,e);
+//
+//    if(i>e || j<b)return INT_MAX;
+//    if(b>=i && e<=j)return tree[node];
+//    ll left,right,mid,p1,p2;
+//
+//    left = node*2;
+//    right = left + 1;
+//
+//    mid = (b+e)/2;
+//
+//    p1 = stq(left,b,mid,i,j);
+//    p2 = stq(right,mid+1,e,i,j);
+//
+//    return min(p1,p2);
+//
+//
+//}
+
+void akam()
+{
+    ll n,i,j,c=0,x,y,k,ans=0,sum=0;
+
+    //cout<<"Case "<<tst<<": ";
+
+
+    cin>>n>>k;
+    ll a,b,u;
+    for(i=0; i<n; i++)cin>>arr[i];
+    initi(1,0,n-1);
+
+   // for(i=1; i<=8; i++)cout<<"NOde "<<i<<" "<<tree[i].pre_sum<<" pre "<<tree[i].suf_sum<<" sub_dfj "<<tree[i].sub_sum<<" tot "<<tree[i].tot_sum<<endl;
+
+    x = max(0LL, tree[1].sub_sum);
+    cout<<x<<endl;
+    for(i=0; i<k; i++)
+    {
+        cin>>x>>y;
+        stu(1,0,n-1,x,x,y);
+
+        x = max(0LL, tree[1].sub_sum);
+        cout<<x<<endl;
+    }
+}
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    ll tst =0;
+
+    //test
+    akam();
+
+    return 0;
+
+}
