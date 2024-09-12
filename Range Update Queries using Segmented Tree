@@ -34,8 +34,8 @@ using namespace std;
 #define S                       second
 #define pb(x)                   push_back(x)
 #define mp(x,y)                 make_pair(x,y)
-#define veci                    vector<int>
-#define vecl                    vector<long long>
+#define vii                     vector<int>
+#define vll                     vector<long long>
 #define vp                      vector<pair<ll, ll> >
 #define v_min(a)                *min_element(a.begin(),a.end())
 #define v_max(a)                *max_element(a.begin(),a.end())
