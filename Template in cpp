@@ -1,0 +1,4101 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{multicol}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{sectsty}
+\linespread{0.5}
+\setlength\parindent{3mm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\lhead{CoU\_LastTryWithRST (Comilla University)}
+% \chead{Comilla University}
+% \fancyhead[L]{Left}
+% \fancyhead[C]{Center}
+% \fancyhead[R]{Right}
+\fancyheadoffset[]{-0.5\textwidth}
+\renewcommand{\headrulewidth}{0.1pt}
+% \renewcommand{\footrulewidth}{0.4pt}
+\rhead{\thepage}
+% \cfoot{center of the footer!}
+
+\usepackage{titlesec}
+\titleformat{\section}
+  {\color{blue}\normalfont\fontsize{9}{11}\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\color{red}\normalfont\fontsize{8}{10}\bfseries}{\thesubsection}{1em}{}
+\titlespacing\section{0pt}{12pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing\subsection{0pt}{3pt plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ landscape,
+ left=10mm,
+ right=0mm,
+ top=14mm,
+ bottom=4mm,
+ }
+ \usepackage{listings}
+ \lstset{
+    language=C++,
+    basicstyle=\ttfamily\footnotesize, % Set font style
+    backgroundcolor=\color{black!2}, % Background color
+    keywordstyle=\color{blue}, % Keywords in blue
+    commentstyle=\color{gray}, % Comments in gray
+    stringstyle=\color{red}, % Strings in red
+    literate={->}{$\textcolor{red}{\bm{\rightarrow}}$}{2}, % Replace -> with red bold arrow
+}
+\title{Team notebook}
+\author{CoU\_LastTryWithRST (Comilla University)&\\
+    Ahsanul Anam Saboj \Vert Md Rashed \Vert  A F Tamim
+}
+
+\date{5 January 2024}
+\begin{document}
+\maketitle
+\begin{multicols}{3}
+\tableofcontents
+\section{Number Theory}
+\subsection{Miller Rabin}
+\begin{lstlisting}
+using u64 = uint64_t;
+using u128 = __uint128_t;
+
+u64 binpower(u64 base, u64 e, u64 mod) {
+    u64 result = 1;
+    base %= mod;
+    while (e) {
+        if (e & 1)
+            result = (u128)result * base % mod;
+        base = (u128)base * base % mod;
+        e >>= 1;
+    }
+    return result;
+}
+
+bool check_composite(u64 n, u64 a, u64 d, int s) {
+    u64 x = binpower(a, d, n);
+    if (x == 1 || x == n - 1)
+        return false;
+    for (int r = 1; r < s; r++) {
+        x = (u128)x * x % n;
+        if (x == n - 1)
+            return false;
+    }
+    return true;
+};
+
+bool MillerRabin(u64 n, int iter=5) {
+    if (n < 4)
+        return n == 2 || n == 3;
+
+    int s = 0;
+    u64 d = n - 1;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        s++;
+    }
+
+    for (int i = 0; i < iter; i++) {
+        int a = 2 + rand() % (n - 3);
+        if (check_composite(n, a, d, s))
+            return false;
+    }
+    return true;
+}
+\end{lstlisting}
+\subsection{Number of Divisor}
+\begin{lstlisting}
+long long NumberOfDivisor(long long n)
+{
+    long long ans=1;
+    for(long long i=0; prime[i]*prime[i]<=n; i++)
+    {
+        long long counter=0;
+        while(n%prime[i]==0)
+        {
+            n/=prime[i];
+            counter++;
+        }
+        ans*=(counter+1);
+    }
+    if(n>1)ans*=2;
+    return ans;
+}
+\end{lstlisting}
+
+\subsection{Sum of Divisors}
+\begin{lstlisting}
+long long SumOfDivisor(long long n)
+{
+    long long ans=1;
+    for(long long i=0; prime[i]*prime[i]<=n;
+            i++)
+    {
+        long long sum=0,p=1;
+        while(n%prime[i]==0)
+        {
+            n/=prime[i];
+            p*=prime[i];
+            sum+=p;
+        }
+        ans*=(sum+1);
+    }
+    if(n>1)
+        ans*=(n+1);
+    return ans;
+}
+\end{lstlisting}
+
+\subsection{Eulers Phi}
+\begin{lstlisting}
+long long phi(long long n)
+{
+    long long result = n;
+    for (long long p = 2; p * p <= n; ++p)
+    {
+        if (n % p == 0)
+        {
+            while (n % p == 0)
+            {
+                n /= p;
+            }
+            result -= result / p;
+        }
+    }
+    if (n > 1)
+        result -= result / n;
+    return result;
+}
+
+
+\end{lstlisting}
+
+\subsection{Eulers Phi 1 to N O(nloglog(n))}
+\begin{lstlisting}
+#define MAX 100000
+long long phi[MAX + 7];
+void generatePhi()
+{
+    phi[1] = 0;
+    for (long long i = 2; i <= MAX; i++)
+    {
+        if(!phi[i])
+        {
+            phi[i] = i-1;
+            for(long long j=(i<<1); j<=MAX; j+=i)
+            {
+                if(!phi[j])
+                    phi[j] = j;
+                phi[j] = phi[j] * (i-1) / i;
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Seive}
+\begin{lstlisting}
+vector<ll>prime;
+bool mark[1000003];
+void sieve(ll n)
+{
+    ll i,j;
+    mark[1]=1;
+    for(i=4; i<=n; i+=2)mark[i]=1;
+    prime.push_back(2);
+    for(i=3; i<=n; i+=2)
+    {
+        if(!mark[i])
+        {
+            prime.push_back(i);
+            if(i*i<=n)
+            {
+                for(j=i*i; j<=n; j+=(i*2))mark[j]=1;
+            }
+        }
+    }
+}
+\end{lstlisting}
+\subsection{Extended Euclidean Algorithm}
+\begin{lstlisting}
+int extended_euclid(int a, int b, int& x, int& y) {
+    if (b == 0) {
+        x = 1;
+        y = 0;
+        return a;
+    }
+    int x1, y1;
+    int d = extended_euclid(b, a % b, x1, y1);
+    x = y1;
+    y = x1 - y1 * (a / b);
+    return d;
+}
+\end{lstlisting}
+
+\subsection{Modular Inverse / Inverse Modulo}
+\begin{lstlisting}
+//Eikhane extended_euclidian hbe
+ll mod_inverse(ll a, ll m)
+{
+    ll x, y;
+    ll gc = extended_euclid(a, m, x, y);
+    if (gc != 1) return -1;
+    return (x % m + m) % m;
+}
+\end{lstlisting}
+
+\subsection{BigMod / Binary Exponention}
+\begin{lstlisting}
+long long binpow(long long a, long long b) {
+    long long res = 1;
+    while (b > 0) {
+        if (b & 1)
+            res = res * a;
+        a = a * a;
+        b >>= 1;
+    }
+    return res;
+}
+
+\end{lstlisting}
+
+\subsection{nCr (Bionomial Co-efficient)}
+\begin{lstlisting}
+long long ncr ( long long n, long long r )
+{
+    if(n<r)
+        return 0;
+    ll ans=1;
+    ans *= fact[n];
+    ll d=fact[r];
+    d*=fact[n-r];
+    d%=MOD;
+    an*=binpow(d,MOD-2,MOD);
+    an%=MOD;
+    return an;
+}
+\end{lstlisting}
+
+\subsection{Computing binomial coefficients modulo  
+$M$   nCr mod}
+\begin{lstlisting}
+//Shohag
+#include<bits/stdc++.h>
+using namespace std;
+
+const int N = 1e6 + 9;
+using ll = long long;
+
+int power(long long n, long long k, const int mod) {
+  int ans = 1 % mod; n %= mod; if (n < 0) n += mod;
+  while (k) {
+    if (k & 1) ans = (long long) ans * n % mod;
+    n = (long long) n * n % mod;
+    k >>= 1;
+  }
+  return ans;
+}
+ll extended_euclid(ll a, ll b, ll &x, ll &y) {
+  if (b == 0) {
+    x = 1; y = 0;
+    return a;
+  }
+  ll x1, y1;
+  ll d = extended_euclid(b, a % b, x1, y1);
+  x = y1;
+  y = x1 - y1 * (a / b);
+  return d;
+}
+ll inverse(ll a, ll m) {
+  ll x, y;
+  ll g = extended_euclid(a, m, x, y);
+  if (g != 1) return -1;
+  return (x % m + m) % m;
+}
+// returns n! % mod without taking all the multiple
+//factors of p into account that appear
+//in the factorial
+// mod = multiple of p
+// O(mod) * log(n)
+int factmod(ll n, int p, const int mod) {
+  vector<int> f(mod + 1);
+  f[0] = 1 % mod;
+  for (int i = 1; i <= mod; i++) {
+    if (i % p) f[i] = 1LL * f[i - 1] * i % mod;
+    else f[i] = f[i - 1];
+  }
+  int ans = 1 % mod;
+  while (n > 1) {
+    ans = 1LL * ans * f[n % mod] % mod;
+ans= 1LL * ans * power(f[mod], n / mod, mod) % mod;
+    n /= p;
+  }
+  return ans;
+}
+ll multiplicity(ll n, int p) {
+  ll ans = 0;
+  while (n) {
+    n /= p;
+    ans += n;
+  }
+  return ans;
+}
+// C(n, r) modulo p^k
+// O(p^k log n)
+int ncr(ll n, ll r, int p, int k) {
+  if (n < r or r < 0) return 0;
+  int mod = 1;
+  for (int i = 0; i < k; i++) {
+    mod *= p;
+  }
+  ll t = multiplicity(n, p)
+  - multiplicity(r, p) - multiplicity(n - r, p);
+  if (t >= k) return 0;
+  int ans = 1LL * factmod(n, p, mod) *
+  inverse(factmod(r, p, mod), mod) % mod *
+  inverse(factmod(n - r, p, mod), mod) % mod;
+  ans = 1LL * ans * power(p, t, mod) % mod;
+  return ans;
+}
+// finds x such that x % m1 = a1,
+x % m2 = a2. m1 and m2 may not be coprime
+// here, x is unique modulo m = lcm(m1, m2). returns (x, m). on failure, m = -1.
+pair<ll, ll> CRT(ll a1, ll m1, ll a2, ll m2) {
+  ll p, q;
+  ll g = extended_euclid(m1, m2, p, q);
+  if (a1 % g != a2 % g) return make_pair(0, -1);
+  ll m = m1 / g * m2;
+  p = (p % m + m) % m;
+  q = (q % m + m) % m;
+  return make_pair((p * a2 % m *
+  (m1 / g) % m + q * a1 % m * (m2 / g) % m) %  m, m);
+}
+int spf[N];
+vector<int> primes;
+void sieve() {
+  for(int i = 2; i < N; i++) {
+    if (spf[i] == 0) spf[i] = i, primes.push_back(i);
+    int sz = primes.size();
+    for (int j = 0; j < sz &&
+    i * primes[j] < N && primes[j] <= spf[i]; j++) {
+      spf[i * primes[j]] = primes[j];
+    }
+  }
+}
+// O(m log(n) log(m))
+int ncr(ll n, ll r, int m) {
+  if (n < r or r < 0) return 0;
+  pair<ll, ll> ans({0, 1});
+  while (m > 1) {
+    int p = spf[m], k = 0, cur = 1;
+    while (m % p == 0) {
+      m /= p; cur *= p;
+      ++k;
+    }
+    ans = CRT(ans.first, ans.second,
+    ncr(n, r, p, k), cur);
+  }
+  return ans.first;
+}
+int32_t main() {
+  ios_base::sync_with_stdio(0);
+  cin.tie(0);
+  sieve();
+  int t; cin >> t;
+  while (t--) {
+    ll n, k; cin >> n >> k;
+    int m; cin >> m;
+    ll r = (n + k - 1) / k;
+    cout << r << ' ' << ncr((k - n % k) % k + r - 1,
+    r - 1, m) << '\n';
+  }
+  return 0;
+}
+
+\end{lstlisting}
+\subsection{Smallest Number Having Exactly K Divisors}
+\begin{lstlisting}
+//Shohag
+#include<bits/stdc++.h>
+using namespace std;
+
+const int N = 1e6 + 9, mod = 1e9 + 7;
+
+int power(long long n, long long k) {
+  int ans = 1 % mod; n %= mod; if (n < 0) n += mod;
+  while (k) {
+    if (k & 1) ans = (long long) ans * n % mod;
+    n = (long long) n * n % mod;
+    k >>= 1;
+  }
+  return ans;
+}
+int spf[N];
+vector<int> primes;
+void sieve() {
+  for(int i = 2; i < N; i++) {
+    if (spf[i] == 0) spf[i] = i, primes.push_back(i);
+    int sz = primes.size();
+    for (int j = 0; j < sz &&
+    i * primes[j] < N && primes[j] <= spf[i]; j++) {
+      spf[i * primes[j]] = primes[j];
+    }
+  }
+}
+double lgp[N];
+vector<long long> v;
+unordered_map<long long, pair<double, int>> dp[100];
+pair<double, int> yo(int i, long long n) {
+// it solves for odd divisors
+  if (n == 1) {
+    return {0, 1};
+  }
+  if (dp[i].find(n) != dp[i].end()) {
+    return dp[i][n];
+  }
+  pair<double, int> ans = {1e50, 0};
+  for (auto x: v) {
+    if (x > n) break;
+    if (n % x != 0) continue;
+    auto z = lgp[i + 1] * (x - 1);
+    // i for all divisors
+    if (z > ans.first) {
+      break;
+    }
+    auto cur = yo(i + 1, n / x);
+    cur.first += z;
+    cur.second = 1LL * cur.second *
+    power(primes[i + 1], x - 1) % mod;
+    // i for all divisors
+    ans = min(ans, cur);
+  }
+  return dp[i][n] = ans;
+}
+int32_t main() {
+  ios_base::sync_with_stdio(0);
+  cin.tie(0);
+  sieve();
+  for (int i = 0; i < 100; i++) {
+    lgp[i] = log(primes[i]);
+  }
+  int t, cs = 0; cin >> t;
+  while (t--) {
+    long long n; cin >> n;
+    ++n;
+    if (n == 1) {
+      cout << "Case " << ++cs << ": " << 1 << '\n';
+      continue;
+    }
+    v.clear();
+    for (int i = 1; 1LL * i * i <= n; i++) {
+      if (n % i == 0) {
+        if (i > 1) v.push_back(i);
+        if (i != n / i) {
+          v.push_back(n / i);
+        }
+      }
+    }
+    sort(v.begin(), v.end());
+    cout << "Case " << ++cs << ": " <<
+    yo(0, n).second << '\n';
+  }
+  return 0;
+}
+\end{lstlisting}
+\subsection{Sum of divisors 1 to N}
+\begin{lstlisting}
+ll inv2;
+long long fun(long long start, long long end) {
+	return ((((end - start + 1) % mod)
+    * ((start + end) % mod) % mod) * inv2 %mod);
+}
+void akam()
+{
+    ll n,i,j,c=0,x,y,k,ans=0,sum=0;
+    cin>>n;
+    inv2 = 500000004;
+    ll first_same = 1,last_same;
+
+    while(first_same<=n){
+
+     j = n/first_same;
+     last_same = n/j;
+     sum = (sum + j*fun(first_same,last_same))%mod;
+     first_same = last_same+1;
+
+    }
+    cout<<sum<<endl;
+}
+\end{lstlisting}
+\subsection{Max gcd of two element of an array}
+\begin{lstlisting}
+    ll m[1000001];
+void akam()
+{
+    ll n,i,j,c=0,x,y,k,ans=0,sum=0;
+    cin>>n;
+    ll a[n];
+    for(i=0; i<n; i++)
+    {
+        cin>>a[i];
+        m[a[i]]++;
+        c = max(c,a[i]);
+    }
+    for(i=c;i>=1;i--){
+
+        ll cnt = 0;
+        for(j=i;j<=c;j+=i){
+
+            if(m[j]>=2){
+                cout<<j<<endl;
+                return;
+            }
+
+            if(m[j]>0){
+              cnt++;
+            }
+
+            if(cnt>=2){
+                cout<<i<<endl;
+                return;
+            }
+
+        }
+    }
+}
+\end{lstlisting}
+\subsection{Product of divisors}
+\begin{lstlisting}
+void akam()
+{
+    ll prf[n+1],suf[n+1];
+    suf[n] = 1;
+    prf[n] = 1;
+    prf[0] = (v[0].S+1)%(mod-1);
+    suf[n-1] = (v[n-1].S+1)%(mod-1);
+    j = n-2;
+    for(i=1;i<n;i++){
+
+        prf[i] = ((v[i].S+1)*prf[i-1])%(mod-1);
+        suf[j] = ((v[j].S+1)*suf[j+1])%(mod-1);
+        j--;
+    }
+
+    ans = 1;
+    for(i=0;i<n;i++){
+    /// This part is for product of divisors
+
+        x = ((v[i].S+1)*v[i].S)/2;
+        x = x%(mod-1);
+        if(i==0){
+            y = suf[i+1]%(mod-1);
+        }
+        else if(i==n-1){
+            y = prf[i-1]%(mod-1);
+        }
+        else {
+            y = (prf[i-1]*suf[i+1])%(mod-1);
+        }
+        x = (x*y)%(mod-1);
+        y = big(v[i].F,x,mod);
+        ans = (ans*y)%mod;
+    }
+    cout<<ans<<endl;
+}
+\end{lstlisting}
+
+\subsection{x^y^k \%mod}
+\begin{lstlisting}
+ll po(ll n,ll m, ll md){
+    ll res = 1;
+    while(m>0){
+
+        if(m&1)res = (res*n)%md;
+
+        n = (n*n)%md;
+        m>>=1;
+    }
+    return res;
+}
+void akam()
+{
+    ll n,i,j,c=0,x,y,k,ans=0,sum=0;
+
+    //cout<<"Case "<<tst<<": ";
+    cin>>x>>y>>k;
+    y = po(y,k,mod-1);
+// euler toteint of mod is used to mod b^c
+    cout<<po(x,y,mod)<<endl;
+
+}
+\end{lstlisting}
+
+\subsection{First n digit and last n digit of a^b}
+\begin{lstlisting}
+ll binpow(ll n, ll k){
+    ll res = 1;
+    while(k>0){
+        if(k&1)res = (res * n)%1000;
+// here i used 1000 to find last three
+, can use 10000 for four 10^n for last n
+        n = (n*n)%1000;
+        k>>=1;
+    }
+    return res;
+}
+void akam()
+{
+    ll n,i,j,c=0,x,y,k,ans=0,sum=0;
+
+    //cout<<"Case "<<tst<<": ";
+    cin>>n>>k;
+    string last = to_string(binpow(n,k));
+    while(last.size()<3)last = '0' + last;
+    long double  d = k * log10(n) + 1;
+    //// here d is the number of digit in (n^k)
+    ll d_er_floor = floor(d);
+    d = d - (d_er_floor + 1 - 3);
+// here d k log10(n) - ( [(k log10(n)] + 1 - x) ,
+//here is the number of digit you need from first:
+    ll first = pow(10.0,d);
+    cout<<first<<"..."<<last<<endl;
+
+}
+\end{lstlisting}
+\subsection{Maximum Co-Prime Product}
+\begin{lstlisting}
+//shohag's tmplt
+    #include <iostream>
+#include <vector>
+using namespace std;
+using ll = long long;
+const int N = 1e5;
+
+// credit: mango_lassi
+int arr[N + 1];
+int u[N + 1];
+int cnt[N + 1];
+
+vector<int> d[N + 1];
+bool b[N + 1];
+
+bool coprime(int x) {
+  int ret = 0;
+  for (int i : d[x]) ret += cnt[i] * u[i];
+  return ret;
+}
+
+void update(int x, int a) {
+  for (int i : d[x]) cnt[i] += a;
+}
+
+int main() {
+  for (int i = 1; i <= N; i++) {
+    for (int j = i; j <= N; j += i) d[j].push_back(i);
+    if (i == 1) u[i] = 1;
+    else if ((i / d[i][1]) % d[i][1] == 0) u[i] = 0;
+    else u[i] = -u[i / d[i][1]];
+  }
+
+  int n;
+  cin >> n;
+
+  ll ans = 0;
+  for (int i = 0; i < n; i++) {
+    int a;
+    cin >> a;
+    ans = max(ans, (ll)a);
+    b[a] = 1;
+  }
+  for (int i = 1; i <= N; ++i) {
+for (int j = 2;
+i * j <= N; ++j) b[i] |= b[i * j];
+  }
+
+  vector<int> s;
+  for (int i = N; i > 0; --i) {
+    if (! b[i]) continue;
+    while(coprime(i)) {
+      ans = max(ans, (ll)i * s.back());
+      update(s.back(), -1);
+      s.pop_back();
+    }
+    update(i, 1);
+    s.push_back(i);
+  }
+  cout << ans << '\n';
+}
+\end{lstlisting}
+\subsection{Mobious Funciton}
+\begin{lstlisting}
+    #include<bits/stdc++.h>
+using namespace std;
+
+const int N = 5e5 + 9;
+
+int mob[N];
+void mobius() {
+  mob[1] = 1;
+  for (int i = 2; i < N; i++){
+    mob[i]--;
+    for (int j = i + i; j < N; j += i) {
+      mob[j] -= mob[i];
+    }
+  }
+}
+bool vis[N];
+vector<int> d[N];
+int mul[N];
+void add(int x, int k) {
+  for (auto y: d[x]) {
+    mul[y] += k;
+  }
+}
+int query(int x) {
+  int ans = 0;
+  for (auto y: d[x]) {
+    ans += mul[y] * mob[y];
+  }
+  return ans;
+}
+int a[N];
+int32_t main() {
+  ios_base::sync_with_stdio(0);
+  cin.tie(0);
+  mobius();
+  for (int i = 1; i < N; i++) {
+    if (mob[i]) {
+      for (int j = i; j < N; j += i) {
+        d[j].push_back(i);
+      }
+    }
+  }
+  int n, q; cin >> n >> q;
+  for (int i = 1; i <= n; i++) {
+    cin >> a[i];
+  }
+  long long ans = 0;
+  while (q--) {
+    int i; cin >> i;
+    if (vis[i]) {
+      ans -= query(a[i]);
+      ans += a[i] == 1;
+      add(a[i], -1);
+    }
+    else {
+      ans += query(a[i]);
+      add(a[i], 1);
+    }
+    vis[i] ^= 1;
+    cout << ans << '\n';
+  }
+  return 0;
+}
+
+\end{lstlisting}
+\subsection{Sum of Product of every pair}
+\begin{lstlisting}
+    s = sum(all array)
+    s2 = sum(ai * ai)
+    sol = .5 * ( s^2 - s2)
+\end{lstlisting}
+\section{Data Structure}
+\subsection{Segment tree with lazy}
+\begin{lstlisting}
+vector<long long> tree, arr, lazy;
+void build(int p, int begin, int end) {
+ if (begin == end) {
+ tree[p] = arr[begin];
+ return;
+ }
+ int left = p << 1;
+ int right = (p << 1) + 1;
+ int mid = (begin + end) >> 1;
+ build(left, begin, mid);
+ build(right, mid + 1, end);
+ tree[p] = min(tree[left], tree[right]);
+ }
+void update_lazy(int p, int begin, int end) {
+ tree[p] += lazy[p];
+ if (begin != end) {
+ int left = p << 1;
+ int right = (p << 1) + 1;
+ lazy[left] += lazy[p];
+ lazy[right] += lazy[p];
+ }
+ lazy[p] = 0;
+ }
+void update(int p, int begin, int end,
+int l, int r, long long value) {
+ if (lazy[p] != 0)
+ update_lazy(p, begin, end);
+ if (l > end || r < begin)
+ return;
+ if (begin >= l && end <= r) {
+ lazy[p] += value;
+ update_lazy(p, begin, end);
+ return;
+ }
+ int left = p << 1;
+ int right = (p << 1) + 1;
+ int mid = (begin + end) >> 1;
+ update(left, begin, mid, l, r, value);
+ update(right, mid + 1, end, l, r, value);
+ tree[p] = min(tree[left], tree[right]);
+ }
+long long query(int p, int begin,
+int end, int l, int r) {
+ if (lazy[p] != 0)
+ update_lazy(p, begin, end);
+ if (l > end || r < begin)
+ return LLONG_MAX;
+ if (begin >= l && end <= r)
+ return tree[p];
+ int left = p << 1;
+ int right = (p << 1) + 1;
+ int mid = (begin + end) >> 1;
+ long long a = query(left, begin, mid, l, r);
+ long long b = query(right, mid + 1, end, l, r);
+ return min(a, b);
+ }
+void segment_tree(vector<long long> temp) {
+ arr = temp;
+ tree.resize(4 * arr.size());
+ build(1, 0, arr.size() - 1);
+ lazy.assign(4 * arr.size(), 0LL);
+ }
+\end{lstlisting}
+\subsection{Special Problem}
+\begin{lstlisting}
+//We Need to Find a increasing subsrquence of
+//b numbers such that their difference is minimized
+int a,b;
+cin>>a>>b;
+vi v(a);
+cinv(v)
+vi dp(a);
+for(int k=2; k<=b; k++)
+{
+    set<int>s;
+    for(int i=a-1; i>=0; i--)
+    {
+        if(dp[i]==INT_MAX)
+        {
+            //Not Possible
+            continue;
+        }
+        s.insert(v[i]+dp[i]);//storing last bounds
+        auto it=s.upper_bound(v[i]+dp[i]);
+        //guranted that we can extend if there exist greater
+        if(it==s.end())
+        {
+            dp[i]=INT_MAX;
+        }
+        else
+        {
+            dp[i]=*it-v[i];
+            //new difference
+        }
+    }
+}
+int ans=*min_element(all(dp));
+if(ans==INT_MAX)
+    ans=-1;
+cout<<ans<<endl;
+
+\end{lstlisting}
+
+\subsection{DSU}
+\begin{lstlisting}
+ll parent[100005];
+ll siz[100005];
+multiset<ll>mul;
+/// To initialize the every element as a group
+void make(ll node)
+{
+    parent[node] = node;
+    siz[node] = 1;
+}
+/// Khujo funtion is used for Find the parent or root node of the group
+ll khujo(ll node)
+{
+    if(node == parent[node])return node;
+    return parent[node] = khujo(parent[node]);
+
+}
+/// Jura function is used for Union operation
+void jura(ll node1,ll node2)
+{
+
+    node1 = khujo(node1);
+    node2 = khujo(node2);
+
+    if(node1!=node2)
+    {
+        if(siz[node1]<siz[node2])
+        {
+            swap(node1,node2);
+
+        }
+        parent[node2] = node1;
+        siz[node1] += siz[node2];
+
+
+    }
+
+}
+
+\end{lstlisting}
+
+\subsection{Trie}
+\begin{lstlisting}
+///herer (-arrow will be used exchange of .
+struct Trie{
+
+    struct node{
+
+        node *nxt[26];
+        bool endmark;
+        node(){
+
+            for(int i=0;i<26;i++){
+                nxt[i] = NULL;
+
+            }
+            endmark = false;
+        }
+
+    }*root;
+
+    Trie(){
+
+        root =  new node();
+    }
+
+    void add(string &s){
+
+        node *cur = root;
+
+        int sz = s.size();
+
+        for(int i=0;i<sz;i++){
+
+            int ch = s[i] - 'a';
+
+            if(cur.nxt[ch] == NULL)
+                cur.nxt[ch] = new node();
+            cur = cur.nxt[ch];
+        }
+        cur.endmark = true;
+
+    }
+    int query(string &s){
+
+        node *cur = root;
+        int sz = s.size();
+        for(int i=0;i<sz;i++){
+            int ch = s[i]-'a';
+            if(cur.nxt[ch]==NULL)return false;
+            cur = cur.nxt[ch];
+        }
+
+       return cur.endmark;
+    }
+
+    void del(node *cur){
+
+        for(int i=0;i<26;i++){
+
+            if(cur.nxt[i] != NULL)del(cur.nxt[i]);
+
+        }
+        delete(cur);
+
+    }
+
+};
+\end{lstlisting}
+
+\subsection{Orderd Set}
+\begin{lstlisting}
+#include<ext/pb_ds/assoc_container.hpp>
+using namespace __gnu_pbds;
+template<typename T> using ordered_set =
+tree<T,null_type,less<T>
+,rb_tree_tag,tree_order_statistics_node_update>;
+gp_hash_table<int, int> table;
+\end{lstlisting}
+\subsection{Orderset Refined}
+\begin{lstlisting}
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+using namespace std;
+template <typename T>
+using ordered_set = tree<T, null_type, less<T>,
+rb_tree_tag,tree_order_statistics_node_update>;
+
+\end{lstlisting}
+
+\subsection{Sparse Table}
+\begin{lstlisting}
+vector<long long >ara;
+vector<vector<long long >>BiT;
+long long lim,N;
+void compute_ST()
+{
+    for(int i=0; i<N; i++)BiT[0][i]=i;
+    for(long long k=1; (1<<k)<N; k++)
+    {
+        for(long long i=0; i+(1<<k)<=N; i++)
+        {
+            long long x=BiT[k-1][i];
+            long long y=BiT[k-1][i+(1<<k-1)];
+            BiT[k][i]=ara[x]<=ara[y] ? x : y;
+        }
+    }
+}
+void Sparse_table(long long N,vector<long long >&ara)
+{
+    ara=ara;
+    N=N;
+    lim=64-__builtin_clz(N);
+    BiT.resize(lim,vector<long long >(N));
+    compute_ST();
+}
+long long query(long long i,long long j)
+{
+    long long k=log2(j-i);
+    long long x=BiT[k][i];
+    long long y=BiT[k][j-(1<<k)+1];
+    return ara[x]<=ara[y] ? x: y;
+}
+
+\end{lstlisting}
+\subsection{Merge Sort Tree}
+\begin{lstlisting}
+
+vecl v[4*(30000+1)];
+ll a[30000+5];
+void build(ll node,ll b,ll e){
+
+    if(b==e){
+
+        v[node].pb(a[e]);
+        return;
+    }
+    ll l,r,mid;
+    mid = (b+e)/2;
+    l = node*2;
+    r = l+1;
+    build(l,b,mid);
+    build(r,mid+1,e);
+    ll i=0,j=0;
+    while(i<v[l].size() && j<v[r].size()){
+
+
+        if(v[l][i]<=v[r][j]){
+
+            v[node].pb(v[l][i]);
+            i++;
+        }
+        else {
+
+             v[node].pb(v[r][j]);
+             j++;
+
+        }
+    }
+    while(j<v[r].size()){
+
+             v[node].pb(v[r][j]);
+             j++;
+    }
+     while(i<v[l].size()){
+
+             v[node].pb(v[l][i]);
+             i++;
+    }
+
+}
+ll query(ll node,ll b,ll e,ll i,ll j,ll k){
+
+    if(e<i || b>j)return 0;
+    else if(b>=i && e<=j){
+
+ll res = v[node].size()-
+    (upper_bound(v[node].begin(),
+    v[node].end(),k) - v[node].begin());
+        return res;
+    }
+
+    ll l,r,mid;
+
+    mid = (b+e)/2;
+    l = query(node*2,b,mid,i,j,k);
+    r = query(node*2+1,mid+1,e,i,j,k);
+
+    return l+r;
+
+}
+
+void akam()
+{
+    ll n,i,j,c=0,x,y,k,ans=0,sum=0;
+
+    //cout<<"Case "<<tst<<": ";
+
+    cin>>n;
+    for(i=1;i<=n;i++)cin>>a[i];
+
+    build(1,1,n);
+
+
+    cin>>k;
+    for(i=0;i<k;i++){
+
+        cin>>x>>y>>j;
+        ans = query(1,1,n,x,y,j);
+       cout<<ans<<endl;
+
+    }
+
+}
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    ll tst =0;
+
+  //  test
+    akam();
+
+    return 0;
+
+}
+\end{lstlisting}
+\subsection{Euler Tour + Query}
+\begin{lstlisting}
+
+ll subtree[200001];
+ll in_time[200001];
+ll seg_tree[800001];
+ll lazy[800001];
+vector<ll> darr;//dfs array or euler tour array
+
+ll dfs(vector<vector<ll>>& tree, ll  node,
+        ll parent,ll& timer)
+//This dfs is to find euler tour (using timer)
+{
+
+    subtree[node] = 1;
+    in_time[node] = timer;
+    timer++;
+    darr.pb(node);
+
+    for(ll child:tree[node])
+    {
+
+        if(child!=parent)
+        {
+
+            subtree[node] +=
+            dfs(tree,child,node,timer);
+        }
+    }
+    return subtree[node];
+
+}
+
+void lazy_update(ll node,ll b,ll e)
+{
+
+
+    seg_tree[node] = ((e-b+1)*lazy[node]);
+    if(b!=e)
+    {
+// ‍same na hole children e popagate value jug korbo
+        ll left = node<<1;
+        ll right = left+1;
+        lazy[left] += lazy[node];
+        lazy[right] += lazy[node];
+    }
+    lazy[node] = 0;
+    // node er propagate zero kore dibo update er pore
+
+}
+void initi(ll node,ll b,ll e,ll *arr)
+{
+    if(b==e)
+    {
+
+        seg_tree[node] = arr[darr[b]];
+        return;
+    }
+    int left,right,mid;
+
+    left = node*2;
+    right = left + 1;
+    mid = (b+e)/2;
+    initi(left,b,mid,arr);
+    initi(right,mid+1,e,arr);
+    //  cout<<node<<" nodde"<<endl;
+    seg_tree[node] =
+    seg_tree[left] + seg_tree[right];
+}
+void stu(ll node,ll b,ll e,ll i,ll j,ll newval)
+{
+
+    if(lazy[node]!=0)lazy_update(node,b,e);
+    if(i>e || j<b)
+    {
+        return;
+    }
+    if(b>=i && e<=j)
+    {
+        lazy[node] = newval;
+        lazy_update(node,b,e);
+        return;
+    }
+    ll left,right,mid;
+
+    left = node*2;
+    right = left+1;
+
+    mid = (b+e)/2;
+    stu(left,b,mid,i,j,newval);
+    stu(right,mid+1,e,i,j,newval);
+    seg_tree[node] = seg_tree[left] + seg_tree[right];
+}
+ll stq(ll node,ll b,ll e,ll i,ll j)
+{
+    if(lazy[node]!=0)lazy_update(node,b,e);
+
+    if(i>e || j<b)return 0;
+    if(b>=i && e<=j)return seg_tree[node];
+    ll left,right,mid,p1,p2;
+
+    left = node*2;
+    right = left + 1;
+
+    mid = (b+e)/2;
+
+    p1 = stq(left,b,mid,i,j);
+    p2 = stq(right,mid+1,e,i,j);
+
+    return p1+p2;
+}
+
+void akam()
+{
+    ll n,i,x,y,k,ans=0;
+
+    //cout<<"Case "<<tst<<": ";
+    cin>>n>>k;
+
+    ll arr[n+1];
+    for(i=1; i<=n; i++)
+    {
+        cin>>arr[i];
+    }
+    vector<vector<ll>>tree(n+1);
+    for(i=0; i<n-1; i++)
+    {
+        cin>>x>>y;
+        tree[x].pb(y);
+        tree[y].pb(x);
+    }
+
+    ll timer = 0;
+    darr.pb(0);
+    dfs(tree,1,-1,timer);
+
+    ll ind[n+1];
+//    for(i=1; i<darr.size(); i++)
+//    {
+//
+//        cout<<darr[i]<< " ";
+//    }
+//   // cout<<endl;
+    for(i=1; i<darr.size(); i++)
+    {
+        ind[darr[i]] = i;
+      //  cout<<i<<" inn "<<darr[i]<<endl;
+    }
+
+    initi(1,1,n,arr);
+    for(i=0; i<k; i++)
+    {
+
+        cin>>x;
+        if(x==1)
+        {
+            cin>>x>>y;
+
+            stu(1,1,n,ind[x],ind[x],y);
+        }
+        else if(x==2)
+        {
+            cin>>x;
+            y = ind[x];
+            ans = stq(1,1,n,y,y+subtree[x]-1);
+            cout<<ans<<en;
+        }
+    }
+}
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    //ll tst =0;
+
+    // test
+    akam();
+
+    return 0;
+
+}
+\end{lstlisting}
+\subsection{Monotonic Queue}
+\begin{lstlisting}
+struct monotonic_queue
+{
+    deque<pair<int,int> >dq;
+    void add(int val,int in)
+    {
+//strictly increasing order
+        while(!dq.empty()&&dq.back().first>=val)
+            dq.pop_back();
+        dq.push_back({val,in});
+    }
+    void del(int in)
+    {
+        if(!dq.empty() && dq.front().second==in)
+            dq.pop_front();
+    }
+};
+
+\end{lstlisting}
+\subsection{Xor on Segment Tree}
+\begin{lstlisting}
+
+ll tree[4*N][32];
+ll arr[N],lazy[4*N];
+void lazy_update(ll node,ll b,ll e){
+//পোাশডাউন ওয়েতে কাজ করে ।
+    for(int j=0;j<32;j++){
+  if(lazy[node]&(1<<j)){
+    tree[node][j] = ((e-b+1)-tree[node][j]);
+     }
+ }
+    if(b!=e){
+// ‍same na hole children e popagate value jug korbo
+        ll left = node<<1;
+        ll right = left+1;
+        lazy[left] ^= lazy[node];
+        lazy[right] ^= lazy[node];
+    }
+    lazy[node] = 0;
+// node er propagate zero kore dibo update er pore
+
+}
+void initi(ll node,ll b,ll e)
+{
+
+    if(b==e)
+    {
+//cout<<node<<" "<<" saboj "<<b<<" BB EE "<<e<<endl;
+ for(int j=0;j<32;j++){
+   if(arr[b]&(1<<j))tree[node][j] = 1;
+   else tree[node][j] = 0;
+        }
+        return;
+    }
+    int left,right,mid;
+
+    left = node*2;
+    right = left + 1;
+    mid = (b+e)/2;
+    initi(left,b,mid);
+    initi(right,mid+1,e);
+  //  cout<<node<<" nodde"<<endl;
+   for(int i=0;i<32;i++)
+   {
+    tree[node][i] = tree[left][i] + tree[right][i];
+
+   }
+}
+
+
+void stu(ll node,ll b,ll e,ll i,ll j,ll newval)
+{
+
+    if(lazy[node]!=0)lazy_update(node,b,e);
+    if(i>e || j<b)
+    {
+        return;
+    }
+    if(b>=i && e<=j)
+    {
+
+
+        lazy[node] ^= newval;
+        lazy_update(node,b,e);
+        return;
+    }
+    ll left,right,mid;
+
+    left = node*2;
+    right = left+1;
+
+    mid = (b+e)/2;
+    stu(left,b,mid,i,j,newval);
+    stu(right,mid+1,e,i,j,newval);
+    for(i=0;i<32;i++)
+   {
+
+    tree[node][i] = tree[left][i] + tree[right][i];
+
+   }
+
+
+}
+ll stq(ll node,ll b,ll e,ll i,ll j)
+{
+    if(lazy[node]!=0)lazy_update(node,b,e);
+
+    if(i>e || j<b)return 0;
+    if(b>=i && e<=j)
+    {
+        ll sm = 0;
+        for(int in=0;in<32;in++){
+
+            sm += tree[node][in]*(1<<in);
+
+        }
+        return sm;
+
+    }
+    ll left,right,mid,p1,p2;
+
+    left = node*2;
+    right = left + 1;
+
+    mid = (b+e)/2;
+
+    p1 = stq(left,b,mid,i,j);
+    p2 = stq(right,mid+1,e,i,j);
+
+    return p1+p2;
+
+
+}
+
+void akam()
+{
+    ll n,i,j,c=0,x,y,k,ans=0,sum=0;
+
+    //cout<<"Case "<<tst<<": ";
+
+    cin>>n;
+    for(i=0;i<n;i++){
+
+        cin>>arr[i];
+    }
+    initi(1,0,n-1);
+    cin>>k;
+
+    for(i=0;i<k;i++){
+        cin>>x;
+
+        if(x==1){
+            cin>>x>>y;
+
+
+
+            x = stq(1,0,n-1,x-1,y-1);
+            cout<<x<<endl;
+        }
+        else {
+            cin>>x>>y>>j;
+            stu(1,0,n-1,x-1,y-1,j);
+        }
+    }
+
+}
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    ll tst =0;
+
+    //test
+    akam();
+
+    return 0;
+
+}
+\end{lstlisting}
+\subsection{Ternery Search}
+\begin{lstlisting}
+    // ternary seach on integer
+// for minimum
+while (hi-lo>4)
+{
+    int m1 = (hi+lo)>>1LL;
+    int m2 = (hi+lo)/2 + 1;
+
+    int a1 = koro(v, m1);
+    int a2 = koro(v, m2);
+    if(a1>a2) lo = m1;
+    else hi = m2;
+    // for max
+    if(a1>a2) hi = m1;
+    else lo = m2;
+}
+loop through lo-10 to hi+10;
+
+// ternary seach on double
+double l = ..., r = ..., EPS = 1e-7;
+while (r - l > EPS)
+{
+    double m1 = l + (r - l) / 3,
+           m2 = r - (r - l) / 3;
+    if (f (m1) < f (m2))
+        l = m1;
+    else
+        r = m2;
+}
+f(r) - maximum of function
+
+\end{lstlisting}
+\subsection{Shortest length superstring and number of ways}
+\begin{lstlisting}
+    const int mx = 40;
+int length[mx][mx];
+ll ways[mx][mx];
+string a,b;
+int n,m;
+
+//shortest length of superstring and number of ways.
+int scs(int i, int j){
+
+    if(i<=0 and j<=0){
+        ways[i][j] = 1;
+        return length[i][j] = 0;
+    }
+
+    if(i==0){
+        ways[i][j] = 1;
+        return length[i][j] = j;
+    }
+
+    if(j==0){
+        ways[i][j] = 1;
+        return length[i][j] = i;
+    }
+
+    if(length[i][j] != -1)
+        return length[i][j];
+
+    if(a[i]==b[j]){
+        length[i][j] = 1+scs(i-1,j-1);
+        ways[i][j] = ways[i-1][j-1];
+        return length[i][j];
+    }
+
+
+    else{
+
+        length[i][j] = 1+min(scs(i-1,j),scs(i,j-1));
+
+        if(length[i-1][j]<length[i][j-1])
+            ways[i][j] = ways[i-1][j];
+
+        else if(length[i-1][j]>length[i][j-1])
+            ways[i][j] = ways[i][j-1];
+
+        else
+            ways[i][j] = ways[i-1][j] + ways[i][j-1];
+
+        return length[i][j];
+    }
+}
+\end{lstlisting}
+\section{Graph Theory}
+\subsection{Topological Sort with Cycle Detection}
+\begin{lstlisting}
+Topological Sort with Cycle Detection
+vector<int> v;
+vector<int> adj[27];
+int col[27];
+bool isCycle=0;
+void cycle_detection(int n)
+{
+    if(col[n])
+    {
+        if(col[n]==1)
+            isCycle=1;
+        return;
+    }
+    col[n]=1;
+    for(auto it:adj[n])
+        cycle_detection(it);
+    col[n]=2;
+    v.push_back(n);
+}
+\end{lstlisting}
+
+\subsection{Dijkstra}
+\begin{lstlisting}
+vector<long long> dis;
+vector<int> parent;
+vector<vector<pair<int, int>>> adjlist;
+void Dijkstra(int node, int source = 0)
+{
+    dis.assign(node, LLONG_MAX);
+    parent.assign(node, -1);
+    dis[source] = 0;
+    priority_queue<pair<long long, int>> pq;
+    pq.push({0, source});
+    bitset<100007> processed;
+    while (!pq.empty())
+    {
+        int cur_node = pq.top().second;
+        pq.pop();
+        if (processed[cur_node])
+            continue;
+        processed[cur_node] = 1;
+        for (auto &i : adjlist[cur_node])
+        {
+            int x = i.first;
+            long long w = i.second;
+            if (dis[cur_node] + w < dis[x])
+            {
+                dis[x] = dis[cur_node] + w;
+                parent[x] = cur_node;
+                pq.push({-dis[x], x});
+            }
+        }
+    }
+}
+
+\end{lstlisting}
+
+\subsection{Bellmen Ford}
+\begin{lstlisting}
+vector<long long>Node[100005],cost[100005];
+long long n,m,i,j,cc=0,k;
+long long dis[100005],parent[100005];
+long long inf=10e9;
+void bellmenford(long long s,long long f)
+{
+    for(i=1; i<=n; i++)
+    {
+        if(i==s)dis[i]=0;
+        else dis[i]=inf;
+        parent[i]=-1;
+    }
+    for(i=1; i<n; i++)
+    {
+        bool done=true;
+        for(j=1; j<=n; j++)
+        {
+            for(k=0; k<Node[j].size(); k++)
+            {
+     long long u=j,v=Node[j][k],uv=cost[j][k];
+                if(dis[u]+uv<dis[v])
+                {
+                    dis[v]=dis[u]+uv;
+                    parent[v]=u;
+                    done=false;
+                }
+            }
+        }
+        if(done)break;/// there was nothing to update ;
+    }
+/// Looking for Cycle ;
+    bool found=true;
+    for(i=1; i<=n; i++)
+    {
+        for(j=0; j<Node[i].size(); j++)
+        {
+  long long u=i,v=Node[i][j],uv=cost[i][j];
+            if(dis[u]+uv<dis[v])
+            {
+                cout<<"Found Negative Cycle"<<endl;
+                found=false;
+                return;
+            }
+        }
+        if(!found)break;
+    }
+    for(i=1; i<=n; i++)
+cout<<"NODE : "<<i<<" distance : "<<dis[i]<<endl;
+}
+
+\end{lstlisting}
+
+\subsection{Floyed Warshal}
+\begin{lstlisting}
+long long n,i,j,cc=0,m,k;
+long long adj[100][100];
+long long path[100][100];
+void floyed_Warshal()
+{
+ for(k=1;k<=n;k++){
+ for(i=1;i<=n;i++){
+ for(j=1;j<=n;j++)
+ if(adj[i][k]+adj[k][j]<adj[i][j]){
+ adj[i][j]=adj[i][k]+adj[k][j];
+path[i][j]=path[i][k];
+ }
+ }
+ }
+}
+\end{lstlisting}
+
+\subsection{Ford Fulkerson}
+\begin{lstlisting}
+const int maX=1e5+5;
+typedef vector<vector<long long>>v1;
+v1 Graph;
+long long capacity[1000][1000];
+long long n,m;
+void init(int N)
+{
+    Graph=v1(N+1);
+}
+long long bfs(long long s
+,long long t,vector<long long>&parent)
+{
+    fill(parent.begin(),parent.end(),-1);
+    parent[s]=-2;
+    queue<pair<long long,long long>>q;
+    q.push({s,INT_MAX});
+    while(!q.empty())
+    {
+        long long u=q.front().first;
+        long long flow=q.front().second;
+        q.pop();
+        for(long long i=0; i<Graph[u].size(); i++)
+        {
+            long long v=Graph[u][i];
+            if(parent[v]==-1 && capacity[u][v])
+            {
+                parent[v]=u;
+    long long new_flow=min(flow,capacity[u][v]);
+                cout<<v<<" ";
+                if(v==t)return new_flow;
+                q.push({v,new_flow});
+            }
+        }
+    }
+    return 0;
+}
+long long max_flow(long long s,long long t)
+{
+    vector<long long>parent(n+1);
+    long long flow=0;
+    long long new_flow;
+    while( new_flow=bfs(s,t,parent))
+    {
+        cout<<endl;
+        cout<<new_flow<<endl;
+        flow+=new_flow;
+        long long u=t;
+        while(s != u)
+        {
+            long long prev=parent[u];
+            capacity[prev][u]-=new_flow;
+            capacity[u][prev]+=new_flow;
+            u=prev;
+        }
+    }
+    return flow;
+}
+
+\end{lstlisting}
+
+\subsection{Prims Algorithm}
+\begin{lstlisting}
+const int maX=1e5+5;
+long long nodes,edges;
+bool visit[maX];
+vector<pair<long long,long long>>adj[maX];
+long long prim(long long x)
+{
+long long i,j,minimumcost=0,cost;
+priority_queue<pair<long long,long long>,
+vector<pair<long long,long long>>,
+greater<pair<long long,long long>>> Q;
+    pair<long long,long long> p;
+    Q.push({0,x});
+    while(! Q.empty())
+    {
+        p=Q.top();
+        Q.pop();
+        x=p.second;
+        if(visit[x]==true)continue;
+        visit[x]=true;
+        minimumcost+=p.first;
+        for(i=0; i<adj[x].size(); i++)
+        {
+            long long y=adj[x][i].second;
+            if(visit[y]==false)Q.push(adj[x][i]);
+        }
+    }
+    return minimumcost;
+}
+
+\end{lstlisting}
+
+\subsection{Kruskal}
+\begin{lstlisting}
+const int maX=1e5+5;
+long long id[maX],nodes,edges;
+pair<long long,pair<long long,long long>>p[maX];
+void initialize()
+{
+ for(int i=1;i<maX;i++)id[i]=i;
+}
+long long root(long long x)
+{
+ while(x != id[x])id[x]=id[id[x]],x=id[x];
+ return x;
+}
+void union1(long long x,long long y)
+{
+ long long p=root(x);long long q=root(y);
+ id[p]=id[q];
+}
+long long kruskal(pair<long long,pair<long long,
+long long>>p[])
+{
+ long long x,y,cost,minimumcost=0,i;
+ for(i=0;i<edges;i++){
+ x=p[i].second.first;
+ y=p[i].second.second;cost=p[i].first;
+ if(root(x) != root(y)){
+ minimumcost+=cost;
+ union1(x,y);
+ }
+ }
+ return minimumcost;
+}
+\end{lstlisting}
+
+\subsection{LCA}
+\begin{lstlisting}
+/const int LOG = 20;
+vii G[N], depth(N, 0);
+int up[N][LOG];
+void dfs (int a)
+{
+    for( auto it: G[a])
+    {
+        depth[it] = 1 + depth[a];
+// Binary Lifting
+        up[it][0] = a;
+        for (int j=1; j<LOG; j++)
+        {
+            up[it][j] = up[ up[it][j-1] ][j-1];
+        }
+        dfs(it);
+    }
+}
+int get_lca( int a, int b)
+{
+    if(depth[a] < depth[b]) swap(a, b);
+    int k = depth[a] - depth[b];
+    for ( int j=LOG-1; j>=0; j--)
+    {
+        If (checkbit(k, j)) a = up[a][j];
+    }
+    if(a == b) return a;
+    for( int j=LOG-1; j>=0; j--)
+    {
+        If ( up[a][j] != up[b][j] )
+        {
+            a = up[a][j];
+            b = up[b][j];
+        }
+    }
+    return up[a][0];
+}
+
+
+\end{lstlisting}
+\subsection{Diameter of a tree}
+\begin{lstlisting}
+    // diameter of tree
+
+#include<bits/stdc++.h>
+using namespace std;
+const int N = 2e5 + 9;
+vector<int> g[N];
+int farthest(int s, int n, vector<int> &d)
+{
+    static const int inf = N;
+    d.assign(n + 1, inf);
+    d[s] = 0;
+    vector<bool> vis(n + 1);
+    queue<int> q;
+    q.push(s);
+    vis[s] = 1;
+    int last = s;
+    while (!q.empty())
+    {
+        int u = q.front();
+        q.pop();
+        for (int v: g[u])
+        {
+            if (vis[v]) continue;
+            d[v] = d[u] + 1;
+            q.push(v);
+            vis[v] = 1;
+        }
+        last = u;
+    }
+    return last;
+}
+int32_t main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    int n;
+    cin >> n;
+    for (int i = 1; i < n; i++)
+    {
+        int u, v;
+        cin >> u >> v;
+        g[u].push_back(v);
+        g[v].push_back(u);
+    }
+    vector<int> dx, dy;
+    int x = farthest(1, n, dx);
+    int y = farthest(x, n, dx);
+    farthest(y, n, dy);
+    for (int i = 1; i <= n; i++)
+    {
+        cout << max(dx[i], dy[i]) << " ";
+    }
+    cout << '\n';
+    return 0;
+}
+
+\end{lstlisting}
+\subsection{Topsort}
+\begin{lstlisting}
+const int maX=1e5+5;
+vector<long long>ara[maX],cost[maX];
+bitset<maX> visit;
+long long start[maX],finish[maX];
+long long cnt=0;
+vector<long long>ans;
+void dfs(long long source)
+{
+    cnt++;
+    visit[source]=1;
+    start[source]=cnt;
+    for(int i=0; i<ara[source].size(); i++)
+    {
+        long long y=ara[source][i];
+        if(visit[y]==0)
+        {
+            dfs(y);
+        }
+    }
+    cnt++;
+    ans.emplace_back(source);
+    finish[source]=cnt;
+    return;
+}
+
+\end{lstlisting}
+
+\section{String}
+\subsection{KMP}
+\begin{lstlisting}
+    template<typename T>
+class kmp
+{
+    vector<int> indx;
+public:
+    void lps(T &patt)
+    {
+        indx.resize(patt.size(), 0);
+        int i = 0, j = 1;
+        while (j < patt.size())
+        {
+            if (patt[i] == patt[j])
+                indx[j] = ++i, j++;
+            else
+            {
+                if (i != 0)
+                    i = indx[i - 1];
+                else
+                    indx[j] = 0, j++;
+            }
+        }
+    }
+    bool match(T &text, T &patt)
+    {
+        int i = 0, j = 0;
+        while (j < text.size())
+        {
+            if (patt[i] == text[j])
+                i++, j++;
+            else
+            {
+                if (i != 0)
+                    i = indx[i - 1];
+                else
+                    j++;
+            }
+            if (i == patt.size())
+                return true;
+        }
+        return false;
+    }
+    int frequency(T &text, T &patt)
+    {
+        int i = 0, j = 0, cnt = 0;
+        while (j < text.size())
+        {
+            if (patt[i] == text[j])
+                i++, j++;
+            else
+            {
+                if (i != 0)
+                    i = indx[i - 1];
+                else
+                    j++;
+            }
+            if (i == patt.size())
+                cnt++, i = indx[i -
+                                  1];
+        }
+        return cnt;
+    }
+};
+
+\end{lstlisting}
+\subsection{Manachars}
+\begin{lstlisting}
+    template<typename T>
+class kmp
+{
+    vector<int> indx;
+public:
+    void lps(T &patt)
+    {
+        indx.resize(patt.size(), 0);
+        int i = 0, j = 1;
+        while (j < patt.size())
+        {
+            if (patt[i] == patt[j])
+                indx[j] = ++i, j++;
+            else
+            {
+                if (i != 0)
+                    i = indx[i - 1];
+                else
+                    indx[j] = 0, j++;
+            }
+        }
+    }
+    bool match(T &text, T &patt)
+    {
+        int i = 0, j = 0;
+        while (j < text.size())
+        {
+            if (patt[i] == text[j])
+                i++, j++;
+            else
+            {
+                if (i != 0)
+                    i = indx[i - 1];
+                else
+                    j++;
+            }
+            if (i == patt.size())
+                return true;
+        }
+        return false;
+    }
+    int frequency(T &text, T &patt)
+    {
+        int i = 0, j = 0, cnt = 0;
+        while (j < text.size())
+        {
+            if (patt[i] == text[j])
+                i++, j++;
+            else
+            {
+                if (i != 0)
+                    i = indx[i - 1];
+                else
+                    j++;
+            }
+            if (i == patt.size())
+                cnt++, i = indx[i -
+                                  1];
+        }
+        return cnt;
+    }
+};
+
+\end{lstlisting}
+\subsection{}
+\subsection{Number of Palindrome in a Range}
+\begin{lstlisting}
+//shohag
+#include<bits/stdc++.h>
+using namespace std;
+
+const int N = 1e5 + 9;
+vector<int> d1, d2;
+void manachers(string &s)
+{
+    int n = s.size();
+    d1 = vector<int>(n);
+    // maximum odd length palindrome centered at i
+    // here d1[i]=the palindrome
+    //has d1[i]-1 right characters from i
+    // e.g. for aba, d1[1]=2;
+    for (int i = 0, l = 0, r = -1;
+    i < n; i++)
+    {
+int k = (i > r) ? 1 : min(d1[l + r - i], r - i);
+while (0 <= i - k && i + k < n && s[i - k]
+== s[i + k])
+{
+            k++;
+        }
+        d1[i] = k--;
+        if (i + k > r)
+        {
+            l = i - k;
+            r = i + k;
+        }
+    }
+    d2 = vector<int>(n);
+    // maximum even length palindrome centered at i
+    // here d2[i]=the palindrome
+    //has d2[i]-1 right characters from i
+    // e.g. for abba, d2[2]=2;
+    for (int i = 0, l = 0, r = -1; i < n; i++)
+    {
+        int k = (i > r) ? 0 :
+        min(d2[l + r - i + 1], r - i + 1);
+        while (0 <= i - k - 1 &&
+        i + k < n && s[i - k - 1] == s[i + k])
+        {
+            k++;
+        }
+        d2[i] = k--;
+        if (i + k > r)
+        {
+            l = i - k - 1;
+            r = i + k ;
+        }
+    }
+}
+const int MAXN = (int)5100;
+const int MAXV = (int)5100;
+// maximum value of any element in array
+
+// array values can be negative too,
+//use appropriate minimum and maximum value
+struct wavelet_tree
+{
+    int lo, hi;
+    wavelet_tree *l, *r;
+    int *b, *c, bsz, csz;
+    //  c holds the prefix sum of elements
+
+    wavelet_tree()
+    {
+        lo = 1;
+        hi = 0;
+        bsz = 0;
+        csz = 0, l = NULL;
+        r = NULL;
+    }
+
+    void init(int *from, int *to, int x, int y)
+    {
+        lo = x, hi = y;
+        if(from >= to) return;
+        int mid = (lo + hi) >> 1;
+        auto f = [mid](int x)
+        {
+            return x <= mid;
+        };
+b = (int*)malloc((to - from + 2) * sizeof(int));
+        bsz = 0;
+        b[bsz++] = 0;
+c = (int*)malloc((to - from + 2) * sizeof(int));
+        csz = 0;
+        c[csz++] = 0;
+        for(auto it = from; it != to; it++)
+        {
+            b[bsz] = (b[bsz - 1] + f(*it));
+            c[csz] = (c[csz - 1] + (*it));
+            bsz++;
+            csz++;
+        }
+        if(hi == lo) return;
+auto pivot = stable_partition(from, to, f);
+        l = new wavelet_tree();
+        l.init(from, pivot, lo, mid);
+        r = new wavelet_tree();
+        r.init(pivot, to, mid + 1, hi);
+    }
+    // kth smallest element in [l, r]
+    // for array [1,2,1,3,5] 2nd
+    //smallest is 1 and 3rd smallest is 2
+    int kth(int l, int r, int k)
+    {
+        if(l > r) return 0;
+        if(lo == hi) return lo;
+        int inLeft = b[r] - b[l - 1],
+        lb = b[l - 1], rb = b[r];
+if(k <= inLeft) return this.l.kth(lb + 1, rb, k);
+ return this.r.kth(l - lb, r - rb, k - inLeft);
+    }
+    // count of numbers in [l, r] Less than or equal to k
+    int LTE(int l, int r, int k)
+    {
+        if(l > r || k < lo) return 0;
+    if(hi <= k) return r - l + 1;
+    int lb = b[l - 1], rb = b[r];
+    return this.l.LTE(lb + 1, rb, k) +
+    this.r.LTE(l - lb, r - rb, k);
+    }
+    // count of numbers in [l, r] equal to k
+    int count(int l, int r, int k)
+    {
+if(l > r || k < lo || k > hi) return 0;
+ if(lo == hi) return r - l + 1;
+ int lb = b[l - 1], rb = b[r];
+int mid = (lo + hi) >> 1;
+ if(k <= mid) return this.l.count(lb + 1, rb, k);
+ return this.r.count(l - lb, r - rb, k);
+    }
+    // sum of numbers in [l ,r] less than or equal to k
+    int sum(int l, int r, int k)
+    {
+ if(l > r or k < lo) return 0;
+ if(hi <= k) return c[r] - c[l - 1];
+ int lb = b[l - 1], rb = b[r];
+  return this.l.sum(lb + 1, rb, k) +
+  this.r.sum(l - lb, r - rb, k);
+    }
+    ~wavelet_tree()
+    {
+        delete l;
+        delete r;
+    }
+};
+int get(int l, int r)
+{
+    return r * (r + 1) / 2 - (l - 1) * l / 2;
+}
+wavelet_tree oddl, oddr;
+int odd(int l, int r)
+{
+    int m = (l + r) / 2;
+    int c = 1 - l;
+    int less_ = oddl.LTE(l, m, c);
+    int ansl = get(l, m) + oddl.sum(l, m, c) +
+    (m - l + 1 - less_) * c;
+    c = 1 + r;
+    less_ = oddr.LTE(m + 1, r, c);
+    int ansr = -get(m + 1, r) +
+    oddr.sum(m + 1, r, c) + (r - m - less_) * c;
+    return ansl + ansr;
+}
+wavelet_tree evenl, evenr;
+int even(int l, int r)
+{
+    int m = (l + r) / 2;
+    int c = -l;
+    int less_ = evenl.LTE(l, m, c);
+    int ansl = get(l, m) + evenl.sum(l, m, c)
+    + (m - l + 1 - less_) * c;
+    c = 1 + r;
+    less_ = evenr.LTE(m + 1, r, c);
+    int ansr = -get(m + 1, r) + evenr.sum(m + 1, r, c)
+    + (r - m - less_) * c;
+    return ansl + ansr;
+}
+int a[N], b[N], c[N], d[N];
+int sc()
+{
+    int c = getchar();
+    int x = 0;
+    int neg = 0;
+    for(; ((c < 48 || c > 57)
+    && c != '-'); c = getchar());
+    if(c == '-')
+    {
+        neg = 1;
+        c = getchar();
+    }
+    for(; c > 47 && c < 58; c = getchar())
+    {
+        x = (x << 1) + (x << 3) + c - 48;
+    }
+    if(neg) x = -x;
+    return x;
+}
+inline void out(int n)
+{
+    int N = n < 0 ? -n : n, rev, cnt = 0;
+    rev = N;
+    if (N == 0)
+    {
+        putchar('0');
+        putchar('\n');
+        return ;
+    }
+    while ((rev % 10) == 0)
+    {
+        cnt++;
+        rev /= 10;
+    }
+    if(n < 0) putchar('-');
+    rev = 0;
+    while (N != 0)
+    {
+        rev = (rev << 3) + (rev << 1) + N % 10;
+        N /= 10;
+    }
+    while (rev != 0)
+    {
+        putchar(rev % 10 + '0');
+        rev /= 10;
+    }
+    while (cnt--) putchar('0');
+    putchar('\n');
+    return;
+}
+int main()
+{
+    int i, j, k, n, m, q, l, r;
+    string s;
+    cin >> s;
+    n = s.size();
+    manachers(s);
+    for(i = 1; i <= n; i++) a[i] = d1[i - 1] - i;
+    oddl.init(a + 1, a + n + 1, -MAXV, MAXV);
+    for(i = 1; i <= n; i++) b[i] = d1[i - 1] + i;
+    oddr.init(b + 1, b + n + 1, -MAXV, MAXV);
+    for(i = 1; i <= n; i++) c[i] = d2[i - 1] - i;
+    evenl.init(c + 1, c + n + 1, -MAXV, MAXV);
+    for(i = 1; i <= n; i++) d[i] = d2[i - 1] + i;
+    evenr.init(d + 1, d + n + 1, -MAXV, MAXV);
+
+    q = sc();
+    for(i = 0; i < q; i++)
+    {
+        l = sc();
+        r = sc();
+        out(odd(l, r) + even(l, r));
+    }
+    return 0;
+}
+// https://codeforces.com/contest/245/problem/H
+
+\end{lstlisting}
+\subsection{String Hashing}
+\begin{lstlisting}
+//shohag
+#include<bits/stdc++.h>
+using namespace std;
+
+const int N = 1e6 + 9;
+
+int power(long long n, long long k, const int mod) {
+  int ans = 1 % mod;
+  n %= mod;
+  if (n < 0) n += mod;
+  while (k) {
+    if (k & 1) ans = (long long) ans * n % mod;
+    n = (long long) n * n % mod;
+    k >>= 1;
+  }
+  return ans;
+}
+
+const int MOD1 = 127657753, MOD2 = 987654319;
+const int p1 = 137, p2 = 277;
+int ip1, ip2;
+pair<int, int> pw[N], ipw[N];
+void prec() {
+  pw[0] =  {1, 1};
+  for (int i = 1; i < N; i++) {
+pw[i].first = 1LL * pw[i - 1].first * p1 % MOD1;
+pw[i].second = 1LL * pw[i - 1].second * p2 % MOD2;
+  }
+  ip1 = power(p1, MOD1 - 2, MOD1);
+  ip2 = power(p2, MOD2 - 2, MOD2);
+  ipw[0] =  {1, 1};
+  for (int i = 1; i < N; i++) {
+ipw[i].first = 1LL * ipw[i - 1].first * ip1 % MOD1;
+ipw[i].second = 1LL * ipw[i - 1].second * ip2 % MOD2;
+  }
+
+}
+struct Hashing {
+  int n;
+  string s; // 0 - indexed
+  vector<pair<int, int>> hs; // 1 - indexed
+  Hashing() {}
+  Hashing(string _s) {
+    n = _s.size();
+    s = _s;
+    hs.emplace_back(0, 0);
+    for (int i = 0; i < n; i++) {
+      pair<int, int> p;
+      p.first = (hs[i].first + 1LL *
+      pw[i].first * s[i] % MOD1) % MOD1;
+      p.second = (hs[i].second + 1LL *
+      pw[i].second * s[i] % MOD2) % MOD2;
+      hs.push_back(p);
+    }
+  }
+  pair<int, int> get_hash(int l, int r) {
+  /// 1 - indexed
+    assert(1 <= l && l <= r && r <= n);
+    pair<int, int> ans;
+    ans.first = (hs[r].first -
+    hs[l - 1].first + MOD1) *
+    1LL * ipw[l - 1].first % MOD1;
+    ans.second = (hs[r].second -
+    hs[l - 1].second + MOD2)
+    * 1LL * ipw[l - 1].second % MOD2;
+    return ans;
+  }
+  pair<int, int> get_hash() {
+    return get_hash(1, n);
+  }
+};
+int32_t main() {
+  ios_base::sync_with_stdio(0);
+  cin.tie(0);
+  prec();
+  int n;
+  while (cin >> n) {
+    string s, p;
+    cin >> p >> s;
+    Hashing h(s);
+    auto hs = Hashing(p).get_hash();
+    for(int i = 1; i + n - 1 <= s.size(); i++) {
+      if (h.get_hash(i, i + n - 1) == hs)
+      cout << i - 1 << '\n';
+    }
+    cout << '\n';
+  }
+  return 0;
+}
+// https://www.spoj.com/problems/NHAY/
+\end{lstlisting}
+\subsection{Z algorithm}
+\begin{lstlisting}
+    #include<bits/stdc++.h>
+using namespace std;
+
+// An element Z[i] of Z array stores
+//length of the longest substring
+// starting from str[i] which i
+//s also a prefix of str[0..n-1].
+// The first entry of Z array is meaning
+//less as complete string is always prefix of itself.
+// Here Z[0]=0.
+vector<int> z_function(string s) {
+  int n = (int) s.length();
+  vector<int> z(n);
+  for (int i = 1, l = 0, r = 0; i < n; ++i) {
+    if (i <= r)
+      z[i] = min (r - i + 1, z[i - l]);
+    while (i + z[i] < n && s[z[i]] == s[i + z[i]])
+      ++z[i];
+    if (i + z[i] - 1 > r)
+      l = i, r = i + z[i] - 1;
+  }
+  return z;
+}
+int32_t main() {
+  string s;
+  cin >> s;
+  vector<int>  ans = z_function(s);
+  for(auto x : ans) cout << x << ' ';
+  return 0;
+}
+\end{lstlisting}
+\subsection{Maximum Length of balanced bracket sequence}
+\begin{lstlisting}
+ // Maximum lenght of valanced bracket sequnce
+string s;
+const int N = 1e6+2;
+struct node
+{
+    int open,close,full;
+};
+node tree[4*N];
+node merge(node l, node r)
+{
+    node notun;
+notun.full = l.full+r.full+min(l.open, r.close);
+notun.open = l.open+r.open-min(l.open, r.close);
+notun.close = l.close+r.close-min(l.open, r.close);
+    return notun;
+}
+node query(int ind, int b, int e, int i, int j)
+{
+    if(j<b || e<i)
+    {
+     node ans;
+    ans.open=0,ans.close=0,ans.full=0;
+    return ans;
+    }
+    if(b>=i && e<=j) return tree[ind];
+    int mid = (b+e)>>1;
+    return merge(
+               query(2*ind+1, b, mid, i, j),
+               query(2*ind+2, mid+1, e, i, j)
+           );
+}
+void build(int ind, int b, int e)
+{
+    if(b==e)
+    {
+    if(s[b]=='(') {tree[ind].open=1,
+    tree[ind].close=0,tree[ind].full=0;}
+    else { tree[ind].open=0,
+    tree[ind].close=1,tree[ind].full=0;}
+return;
+    }
+    int left = ind*2+1;
+    int right = ind*2+2;
+    int mid = (b+e)>>1;
+    build(left, b,mid);
+    build(right, mid+1,e);
+    tree[ind]=merge(tree[left],tree[right]);
+}
+int32_t main()
+{
+    cin>>s;
+    int n;
+    n=s.size();
+    build(0,0,n-1);
+    node ans = query(0,0,n-1,0,n-1);
+    cout<<ans.full*2<<endl;
+    return 0;
+}
+
+\end{lstlisting}
+\subsection{String Multiplication}
+\begin{lstlisting}
+    string multyply(string a,int b)
+{
+    int carry = 0;
+    string ans = "";
+    for(int i=a.size()-1; i>=0; i--)
+    {
+        carry=((a[i]-'0')*b+carry);
+        ans += carry % 10 + '0';
+        carry /= 10;
+    }
+    while(carry != 0)
+    {
+        ans += carry % 10 + '0';
+        carry /= 10;
+    }
+    return ans;
+}
+\end{lstlisting}
+\subsection{String Division}
+\begin{lstlisting}
+    string longDivision(string number, int divisor)
+{
+ // As result can be very large store it in string
+    string ans;
+    // Find prefix of number that is larger
+    // than divisor.
+    int idx = 0;
+    int temp = number[idx] - '0';
+while (idx < (number.size() - 1) && temp < divisor)
+        temp = temp * 10 + (number[++idx] - '0');
+    // Repeatedly divide divisor with temp. After
+    // every division, update temp to include one
+    // more digit.
+while ((number.size() - 1) > idx) {
+        // Store result in answer i.e. temp / divisor
+        ans += (temp / divisor) + '0';
+        // Take next digit of number
+ temp = (temp % divisor) *10 + number[++idx] -'0';
+    }
+    ans += (temp / divisor) + '0';
+    // If divisor is greater than number
+    if (ans.length() == 0)
+        return "0";
+    // else return ans
+    return ans;
+}
+\end{lstlisting}
+\subsection{Longest Palindrome}
+\begin{lstlisting}
+    // Template owner youKnowWho
+// Problem: https://www.spoj.com/problems/NHAY/
+#include<bits/stdc++.h>
+using namespace std;
+
+const int N = 1e6 + 3;
+// BigMod
+int power(long long base, long long k, const int mod)
+{
+    int ans = 1 % mod;
+    base %= mod;
+    if (base < 0) base += mod;
+    while (k)
+    {
+     if (k & 1)ans =(long long)ans *base % mod;
+    base = (long long) base * base % mod;
+        k >>= 1;
+    }
+    return ans;
+}
+const int MOD1 = 127657753, MOD2 = 987654319;
+const int p1 = 151, p2 = 269;
+int ip1, ip2;
+pair<int, int> pw[N], inpw[N];
+// Pre calculation of Power & Inverse power
+void prec()
+{
+    pw[0] =  {1, 1};
+    for (int i = 1; i < N; i++)
+    {
+pw[i].first=1LL*pw[i - 1].first *p1 % MOD1;
+pw[i].second=1LL*pw[i - 1].second *p2 % MOD2;
+    }
+    ip1 = power(p1, MOD1 - 2, MOD1);
+    ip2 = power(p2, MOD2 - 2, MOD2);
+    inpw[0] =  {1, 1};
+    for (int i = 1; i < N; i++)
+    {
+inpw[i].first = 1LL*inpw[i - 1].first* ip1 % MOD1;
+inpw[i].second = 1LL*inpw[i - 1].second* ip2 % MOD2;
+    }
+}
+// Calculating Hash value
+struct Hashing
+{
+
+    //public:
+    int n;
+    string s; // 0 - indexed
+    vector<pair<int, int>> hs; // 1 - indexed
+    Hashing() {}
+    Hashing(string _s)
+    {
+        n = _s.size();
+        s = _s;
+        hs.emplace_back(0, 0);
+        for (int i = 0; i < n; i++)
+        {
+            pair<int, int> p;
+p.first=(hs[i].first+
+1LL*pw[i].first*s[i]%MOD1)%MOD1;
+p.second=(hs[i].second+
+1LL*pw[i].second*s[i]%MOD2)%MOD2;
+    hs.push_back(p);
+        }
+    }
+    pair<int, int> get_hash(int l, int r)   // 1 - indexed
+    {
+        //assert(1 <= l && l <= r && r <= n);
+        pair<int, int> ans;
+ans.first = (hs[r].first -
+hs[l - 1].first + MOD1) * 1LL *
+inpw[l - 1].first % MOD1;
+ans.second = (hs[r].second -
+hs[l - 1].second + MOD2) * 1LL *
+inpw[l - 1].second % MOD2;
+        return ans;
+    }
+    pair<int, int> get_hash()
+    {
+        return get_hash(1, n);
+    }
+};
+
+int main()
+{
+    prec();
+    string s;
+    cin>>s;
+    int n = s.size();
+    Hashing hash1(s);
+    string ss=s;
+    reverse(ss.begin(), ss.end());
+    Hashing hash2(ss);
+
+
+    long long ans = 1, l, r;
+    for(int i=1; i<=n; i++)
+    {
+
+        if(s[i-1]==s[i])
+        {
+            int lo=i+1, hi=n+1, mid;
+            while(hi>lo+1)
+            {
+                mid = (hi+lo)/2;
+                int ok=0;
+                auto c = hash1.get_hash(i+1,mid);
+                int k = i-(mid-i)+1;
+                if(k<=0)
+                {
+                    hi=mid;
+                    continue;
+                }
+                auto d = hash2.get_hash(n-i+1,n-k+1);
+                if(c==d) lo=mid;
+                else hi=mid;
+            }
+            long long temp = (lo-i)*2;
+            if(temp>ans)
+            {
+                l=i-temp/2+1;
+                r = i+temp/2;
+                ans = temp;
+            }
+        }
+
+        long long lo=i, hi=n+1, mid;
+        while(hi>lo+1)
+        {
+            mid = (hi+lo)/2;
+            auto c = hash1.get_hash(i,mid);
+            int k = i-(mid-i);
+            if(k<=0)
+            {
+                hi=mid;
+                continue;
+            }
+            auto d = hash2.get_hash(n-i+1,n-k+1);
+            if(c==d)
+            {
+                lo=mid;
+            }
+            else hi=mid;
+        }
+        long long temp = (lo-i)*2+1;
+        if(temp>ans)
+        {
+            l=i-temp/2;
+            r = i+temp/2;
+            ans = temp;
+        }
+
+    }
+
+    if(n==2 && s[0]==s[1])
+    {
+        cout<<s;
+    }
+    else if(ans==1) cout<<s[0];
+    else for(int i=l-1; i<r; i++) cout<<s[i];
+    cout<<'\n';
+
+}
+
+\end{lstlisting}
+\section{Bit Manipulation}
+\subsection{Bit's details}
+\begin{lstlisting}
+#define least one pos(x) builtin ffs(x)
+#define leading zeros(x) builtin clz(x)
+#define tailing zeros(x) builtin ctz(x)
+#define num of one(x) builtin popcount(x)
+#define msb(x) 32-leading zeros(x)
+a + b = (a^b) + 2 (a&b)
+
+\end{lstlisting}
+
+\subsection{All sub arrray xor sum}
+\begin{lstlisting}
+
+ll isOn(ll x,ll i){
+
+  //  cout<<" X "<<i<<" "<<x<<endl;
+    return x&(1LL<<i);
+}
+ll flip(ll x, ll i){
+    return x^(1LL<<i);
+}
+ll doOff(ll x,ll i)
+{
+    if(isOn(x,i)) return flip(x,i);
+    return x;
+
+
+}
+ll power(ll x, ll m){
+
+        ll res = 1;
+        while(m>0){
+
+            if(m%2==1)res = res*x;
+
+            x = x*x;
+            m/=2;
+        }
+        return res;
+}
+void akam()
+{
+    ll n,i,j,c=0,x,y,k,ans=0,sum=0;
+
+    //cout<<"Case "<<tst<<": ";
+
+    cin>>n;
+    ll a[n],prf[n+1];
+
+    for(i=0; i<n; i++)
+    {
+        cin>>a[i];
+        //sum += a[i];
+    }
+ //Age array tar prefix xor ber kore
+ //nite hobe than all pair xor sum er motoi concept
+    prf[0] = 0;
+    for(i=1;i<=n;i++){
+
+        prf[i] = (prf[i-1]^a[i-1]);
+    }
+    prf[0] = 0;
+    for(i=0;i<32;i++){
+        ll on=0,of=0;
+        for(j=0;j<=n;j++){ // shuru korte hbe 0 theke
+
+            if(isOn(prf[j],i))on++;
+            else of++;
+        }
+        //cout<<on<<" "<<of<<" "<<sum<<endl;
+        sum += (on*of * (1<<i));
+    }
+    cout<<sum<<endl;
+
+}
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    ll tst =0;
+
+    test
+    akam();
+
+    return 0;
+
+}
+\end{lstlisting}
+\subsection{Inclusion,Exclusion using bitmanipulation}
+\begin{lstlisting}
+
+void akam()
+{
+    ll n,i,j,c=0,x,y,k,ans=0,sum=0;
+
+    //cout<<"Case "<<tst<<": ";
+    cin>>n>>k;
+
+    ll a[k];
+    for(i=0;i<k;i++)cin>>a[i];
+    sort(a,a+k);
+    for(i=1;i<(1<<k);i++){
+
+        bitset<32>b(i);
+        ll cnt=0;
+        c = 1;
+        //cout<<b<<endl;
+        for(j=0;j<k;j++){
+
+            if(b[j]==1){
+
+                if(c>(n/a[j])){
+
+                    c = INF;
+                    break;
+                }
+
+                c*=a[j];
+                cnt++;
+
+            }
+        }
+        if(c==INF)continue;
+
+        if(cnt&1)sum += (n/c);
+        else sum -= (n/c);
+       // cout<<sum<<endl;
+    }
+    cout<<sum<<endl;
+}
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    ll tst =0;
+
+    //test
+    akam();
+
+    return 0;
+
+}
+\end{lstlisting}
+\subsection{All subsequence xor of a range}
+\begin{lstlisting}
+    Formula = Or of the segment * 2^(n-1)
+    //here n is the seg.size
+\end{lstlisting}
+\section{Dynamic Programming}
+\subsection{Number of Subsequences Having Product at least K.}
+\begin{lstlisting}
+    #include<bits/stdc++.h>
+using namespace std;
+
+const int N = 1010, mod = 1e9 + 7, SQ = sqrt(mod) + 1;
+
+int a[N], k;
+int dp1[N][SQ], dp2[N][SQ];
+int mul_back(int i, int p) {
+  if (i <= 0) return p >= 1;
+  int &ret = dp1[i][p];
+  if (ret != -1) return ret;
+  ret = mul_back(i - 1, p);
+  ret += mul_back(i - 1, p / a[i]);
+  if (ret >= mod) ret -= mod;
+  return ret;
+}
+int mul_front(int i, int p) {
+  if (i <= 0) return p <= k;
+  int &ret = dp2[i][p];
+  if (ret != -1) return ret;
+  ret = mul_front(i - 1, p);
+if(1LL * a[i]*p<SQ)ret+mul_front(i-1,p*a[i]);
+else ret += mul_back(i - 1, k / (1LL * p * a[i]));
+  if (ret >= mod) ret -= mod;
+  return ret;
+int32_t main() {
+  ios_base::sync_with_stdio(0);
+  cin.tie(0);
+  memset(dp1, -1, sizeof dp1);
+  memset(dp2, -1, sizeof dp2);
+  int n; cin >> n >> k;
+  --k;
+  for (int i = 1; i <= n; i++) {
+    cin >> a[i];
+  }
+  int ans = 1;
+  for (int i = 1; i <= n; i++) {
+    ans = (ans + ans) % mod;
+  }
+  cout << (ans - mul_front(n, 1)+mod % mod<<'\n';
+  return 0;
+}
+
+\end{lstlisting}
+\subsection{LCS}
+\begin{lstlisting}
+//Geeks for Geeks
+// C++ implementation of Top-Down DP
+// of LCS problem
+#include <bits/stdc++.h>
+using namespace std;
+// Returns length of LCS for S1[0..m-1], S2[0..n-1]
+int lcs(string &S1, string &S2,
+int m, int n, vector<vector<int>> &memo)
+{
+    if (m == 0 || n == 0)
+        return 0;
+    // Already exists in the memo table
+    if (memo[m][n] != -1)
+        return memo[m][n];
+
+    // Match
+if (S1[m - 1] == S2[n - 1])
+ return memo[m][n] = 1 + lcs(S1, S2,
+ m - 1, n - 1, memo);
+
+    // Do not match
+return memo[m][n] = max(lcs(S1, S2, m,
+n - 1, memo), lcs(S1, S2, m - 1, n, memo));
+}
+
+int main()
+{
+    string S1 = "AGGTAB";
+    string S2 = "GXTXAYB";
+
+    int m = S1.length();
+    int n = S2.length();
+    vector<vector<int>> memo(m + 1,
+    vector<int>(n + 1, -1));
+
+    cout << "Length of LCS is " <<
+    lcs(S1, S2, m, n, memo) << endl;
+
+    return 0;
+}
+
+\end{lstlisting}
+\subsection{Longest Common Subarray}
+\begin{lstlisting}
+    #include <bits/stdc++.h>
+using namespace std;
+
+// Function to find the maximum
+// length of equal subarray
+int FindMaxLength(int A[], int B[], int n, int m)
+{
+
+    // Auxiliary dp[] vector
+    vector<int> dp(m + 1, 0);
+    int maxm = 0;
+
+    // Updating the dp[] vector
+    // in Bottom Up approach
+    for (int i = n - 1; i >= 0; i--) {
+        int prev = 0;
+        for (int j = m - 1; j >= 0; j--) {
+            int temp = dp[j];
+            if (A[i] == B[j]) {
+                dp[j] = prev + 1;
+                maxm = max(maxm, dp[j]);
+            }
+            else {
+                dp[j] = 0;
+            }
+            prev = temp;
+        }
+    }
+
+    // Return the maximum length
+    return maxm;
+}
+
+// Driver Code
+int main()
+{
+    int A[] = { 1, 2, 8, 2, 1 };
+    int B[] = { 8, 2, 1, 4, 7 };
+
+    int n = sizeof(A) / sizeof(A[0]);
+    int m = sizeof(B) / sizeof(B[0]);
+
+    // Function call to find
+    // maximum length of subarray
+    cout << (FindMaxLength(A, B, n, m));
+}
+\end{lstlisting}
+\subsection{Longest Increasing Subsequence}
+\begin{lstlisting}
+   ll lis(vector<ll> const& a)
+{
+    ll n = a.size();
+    const ll INF = 1e9;
+    vector<ll> d(n+1, INF);
+    d[0] = -INF;
+
+for (ll i = 0; i < n; i++)
+{
+ll l =upper_bound(d.begin(),d.end(),a[i])-d.begin();
+     if (d[l-1] < a[i] && a[i] < d[l])
+            d[l] = a[i];
+    }
+
+    ll ans = 0;
+    for (ll l = 0; l <= n; l++)
+    {
+        if (d[l] < INF)
+            ans = l;
+    }
+    return ans;
+}
+
+\end{lstlisting}
+\subsection{0/1 knapsack log2}
+\begin{lstlisting}
+vol.pb(0);
+profit.pb(0);
+for(int i=0; i<N; i++)
+{
+    ll n, v, p;
+    cin>>n>>v>>p;
+    ll now = 1, cntSum = 0;
+    while(cntSum + now <= n)
+    {
+// if(v * now > 5000) break;
+        vol.pb(v * now);
+        profit.pb(p * now);
+        cntSum += now;
+        now *= 2;
+    }
+    if(n - cntSum >= 0)
+    {
+        vol.pb(v * (n - cntSum));
+        profit.pb(p * (n - cntSum));
+    }
+}
+
+\end{lstlisting}
+\section{Specials}
+\subsection{Max sum subarray}
+\begin{lstlisting}
+
+struct
+{
+
+    ll ls=0,rs = 0, s = 0,ms= 0;
+
+} tree[N*4];
+struct Tr
+{
+
+ll ls=INT_MIN,rs = INT_MIN,
+s = INT_MIN,ms = INT_MIN;
+
+};
+ll a[N];
+void build(ll nd,ll b,ll e)
+{
+
+    if(b==e)
+    {
+
+        tree[nd].s = a[b];
+        tree[nd].ls = a[b];
+        tree[nd].rs = a[b];
+        tree[nd].ms = a[b];
+        return;
+    }
+
+    ll mid = (b+e)/2;
+    build(lf,b,mid);
+    build(rt,mid+1,e);
+
+    tree[nd].s = tree[lf].s
+    + tree[rt].s;
+    tree[nd].ls = max(tree[lf].s
+    +tree[rt].ls,tree[lf].ls);
+    tree[nd].rs = max(tree[lf].rs
+    +tree[rt].s,tree[rt].rs);
+    tree[nd].ms = max({tree[lf].rs
+    +tree[rt].ls,tree[lf].ms,tree[rt].ms});
+
+}
+void update(ll nd,ll b,ll e,ll l,ll r,ll val)
+{
+
+
+    if(b>r || l>e)return;
+    if(b>=l && e<=r)
+    {
+
+        tree[nd].s = val;
+        tree[nd].ls = val;
+        tree[nd].rs = val;
+        tree[nd].ms = val;
+        return;
+    }
+    ll mid = (b+e)/2;
+    update(lf,b,mid,l,r,val);
+    update(rt,mid+1,e,l,r,val);
+    tree[nd].s = tree[lf].s + tree[rt].s;
+    tree[nd].ls = max(tree[lf].s
+    +tree[rt].ls,tree[lf].ls);
+    tree[nd].rs = max(tree[lf].rs
+    +tree[rt].s,tree[rt].rs);
+    tree[nd].ms = max({tree[lf].rs
+    +tree[rt].ls,tree[lf].ms,tree[rt].ms});
+}
+Tr query(ll nd,ll b,ll e,ll l,ll r)
+{
+
+
+    if(b>r || l>e)
+    {
+        Tr tr;
+        return tr ;
+    }
+
+
+    if(b>=l && e<=r)
+    {
+        Tr tr;
+        tr.s = tree[nd].s;
+        tr.ls = tree[nd].ls;
+        tr.rs = tree[nd].rs;
+        tr.ms = tree[nd].ms;
+        return tr;
+    }
+
+    ll mid = (b+e)/2;
+
+    ll x=0,y=0;
+
+    Tr trr1,trr2,trr3;
+    trr1 = query(lf,b,mid,l,r);
+    trr2 = query(rt,mid+1,e,l,r);
+    trr3.s = trr1.s + trr2.s;
+    trr3.ls = max({trr1.ls,trr1.s+trr2.ls});
+    trr3.rs = max({trr2.rs,trr2.s + trr1.rs});
+    trr3.ms = max({trr1.ms,trr2.ms,trr1.rs+trr2.ls});
+    return trr3;
+}
+
+void akam()
+{
+    ll n,i,j,c=0,x,y,k,ans=0,sum=0;
+
+    //cout<<"Case "<<tst<<": ";
+    cin>>n;
+
+    for(i=1; i<=n; i++)cin>>a[i];
+
+    build(1,1,n);
+
+    cin>>k;
+
+    for(i=0; i<k; i++)
+    {
+
+        cin>>x;
+        if(x==0)
+        {
+            cin>>x>>y;
+            update(1,1,n,x,x,y);
+        }
+        else
+        {
+            cin>>x>>y;
+            Tr tr = query(1,1,n,x,y);
+            cout<<tr.ms<<endl;
+        }
+    }
+}
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    ll tst =0;
+
+    // test
+    akam();
+
+    return 0;
+
+}
+
+\end{lstlisting}
+\subsection{Interactive }
+\begin{lstlisting}
+
+char ask(ll a,ll b,ll c,ll d){
+cout<<"? "<<a<<" "<<b<<" "<<c<<" "<<" "<<d<<endl;
+    fflush(stdout);
+    char ch;
+    cin>>ch;
+
+    return ch;
+}
+void akam()
+{
+    ll n,i,j,c=0,x,y,k,ans=0,sum=0;
+
+    //cout<<"Case "<<tst<<": ";
+    cin>>n;
+    ll mi = 0;
+    for(i=1;i<n;i++){
+        char ch = ask(mi,mi,i,i);
+
+        if(ch=='<')mi = i;
+    }
+   // cout<<mi<<" SDF"<<endl;
+    ll mj = -1;
+    if(mj==mi)mj++;
+    for(i=0;i<n;i++){
+        if(i==mi)continue;
+        if(mj==-1){
+            mj = i;
+            continue;
+        }
+        char ch = ask(mj,mi,i,mi);
+        if(ch=='<')mj = i;
+
+        if(ch=='='){
+
+            ch = ask(mj,mj,i,i);
+
+            if(ch=='>')mj = i;
+        }
+    }
+    cout<<"! "<<mi<<" "<<mj<<endl;
+    fflush(stdout);
+
+
+}
+\end{lstlisting}
+\subsection{nth Fibonacci number}
+\begin{lstlisting}
+ll fib(ll n)
+{
+    if(n==1)return 0;
+    if(n==2)return 1;
+    ll b = n-2;
+    ll x,y,z,w;
+    ll f[2][2] = {{1,1},{1,0}};
+    ll r[2][2] = {{1,0},{0,1}};
+    if(b<0)
+    {
+        return 0;
+    }
+    while(b>0)
+    {
+        if(b&1)
+        {
+x=((r[0][0]*f[0][0])%MAX+(r[0][1]*f[1][0])%MAX)%MAX;
+y=((r[0][0]*f[0][1])%MAX+(r[0][1]*f[1][1])%MAX)%MAX;
+w=((r[1][0]*f[0][0])%MAX+(r[1][1]*f[1][0])%MAX)%MAX;
+z=((r[1][0]*f[0][1])%MAX+(r[1][1]*f[1][1])%MAX)%MAX;
+            r[0][0] = x;
+            r[0][1] = y;
+            r[1][0] = w;
+            r[1][1] = z;
+//cout<<r[0][0]<<" r"<<endl;
+        }
+// cout<<" b "<<b<<endl;
+x=((f[0][0]*f[0][0])%MAX+(f[0][1]*f[1][0])%MAX)%MAX;
+y=((f[0][0]*f[0][1])%MAX+(f[0][1]*f[1][1])%MAX)%MAX;
+w=((f[1][0]*f[0][0])%MAX+(f[1][1]*f[1][0])%MAX)%MAX;
+z=((f[1][0]*f[0][1])%MAX+(f[1][1]*f[1][1])%MAX)%MAX;
+// cout<<"X "<<x<<" y "<<y<<" w "<<w<<" "<<z<<endl;
+        f[0][0] = x;
+        f[0][1] = y;
+        f[1][0] = w;
+        f[1][1] = z;
+// cout<<"f[0][0] "<<f[0][0]<< " "<<f[0][1]<<endl;
+        b>>=1;
+    }
+    return r[0][0];
+}
+
+\end{lstlisting}
+\section{Template & Stress Test}
+\subsection{Main function}
+\begin{lstlisting}
+    #include<bits/stdc++.h>
+using namespace std;
+#define ll           long long int
+#define mod          1000000007
+#define YES          cout<<"Yes"<<endl
+#define NO           cout<<"No"<<endl
+#define all(a)       a.begin(),a.end()
+#define olta(a)      reverse(all(a))
+#define ff           first
+#define ss           second
+#define pb           push_back
+#define mp(x,y)      make_pair(x,y)
+#define vin          vector<int>
+#define vll          vector<long long>
+#define vp           vector<pair<ll, ll>>
+#define un(a)        a.erase(unique(all(a),a.end())
+#define gcd(a,b)     __gcd(a,b)
+#define lcm(a,b)     ((a)*(b))/gcd(a,b)
+#define pi           3.141592653589793
+#define coutv(v)    for(auto it:v){cout<<it<<' ';}
+                    cout<<endl;
+#define cinv(v)      for(auto &it:v)cin>>it;
+#define endl         '\n'
+const int N          = (int)1e5;
+mt19937 rng(chrono::steady_clock::
+now().time_since_epoch().count());
+int my_rand(int l, int r)
+{
+    return uniform_int_distribution<int>(l, r) (rng);
+}
+
+
+void solve()
+{
+
+
+
+}
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);cout.tie(0);
+    ll tst = 1;
+
+    cin>>tst;
+    for(ll i =0;i<tst;i++)solve();
+
+    return 0;
+
+}
+
+\end{lstlisting}
+\subsection{Stress Test for Windows}
+\begin{lstlisting}
+ @echo off
+
+if [%1]==[] (set /A numLoop = 100)
+else (set /A numLoop = %1)
+if [%2]==[] (set /A doComp = 1)
+else (set /A doComp = %2)
+
+if %doComp% equ 1 (
+    echo Compiling solution, gen, brute...
+
+    g++ -std=c++17 gen.cpp -o gen
+    g++ -std=c++17 solution.cpp -o solution
+    g++ -std=c++17 brute.cpp -o brute
+
+    echo Done compiling.
+)
+
+set "diff_found="
+
+for /l %%x in (1, 1, %numLoop%) do (
+    echo %%x
+    gen > input.in
+    solution < input.in > output.out
+    brute < input.in > output2.out
+
+    rem add \f after "fc" to
+    ignore trailing whitespaces and to convert
+    rem multiple whitespaces into one space
+    fc output.out output2.out > diagnostics
+    if errorlevel 1 (
+        set "diff_found=y"
+        goto :break
+    )
+)
+
+:break
+
+if defined diff_found (
+    echo A difference has been found.
+    echo Input:
+    type input.in
+    echo.
+    echo.
+
+    echo Output:
+    type output.out
+    echo.
+
+    echo Expected:
+    type output2.out
+    echo.
+) else (
+    echo All tests passed :D
+)
+
+del input.in
+del output.out
+del output2.out
+\end{lstlisting}
+\subsection{Stress test for Linux}
+\begin{lstlisting}
+set -e
+g++ code.cpp -o code
+g++ gen.cpp -o gen
+g++ brute.cpp -o brute
+for((i = 1; ; ++i)); do
+./gen $i > input_file
+./code < input_file > myAnswer
+./brute < input_file >correctAnswer
+diff -Z myAnswer correctAnswer > /dev/null || break
+echo "Passed test: " $i
+done
+echo "WA on the following test:"
+cat input_file
+echo "Your answer is:"
+cat myAnswer
+echo "Correct answer is:"
+cat correctAnswer
+//Should save the file with extension .sh
+//File name run.sh
+//In Terminal bash run.sh
+\end{lstlisting}
+\subsection{Some Syntax}
+\begin{lstlisting}
+int main()
+{
+// Tuple Declared and Initialized using make_tuple()
+auto t1 = make_tuple(1, "GeeksforGeeks", 'g');
+
+// Tuple Printed
+cout <<"Tuple: "<< get<0>(t1)<< ", "<< get<1>(t1)
+<< ", " << get<2>(t1);
+    return 0;
+}
+
+
+//// Getline GetChar
+int main()
+{
+    string str;
+    cout << "Please enter your name: \n";
+    cin.ignore();
+    getline(cin, str);  // Reads the entire line
+cout << "Hello, " << str << " welcome to GfG !\n";
+    return 0;
+}
+
+\end{lstlisting}
+\section{Miscellaneous & Formulation}
+\subsection{Some of mine}
+\begin{lstlisting}
+    Some Properties/Techniques of Number
+Theory
+1. How many numbers are coprime, from 1 to N*M,
+where N and M are coprime ,GCD(N,M)=1
+1. With N but not with M
+2. With M but not with N
+3. With both M and N
+Ans1 = (phi(N)*M)-phi(N*M)
+Ans2 = (phi(M)*N)-phi(N*M)
+Ans3 = phi(M*N)
+2. Divisors sum of every number from1 to 2*10^9 ?
+Ans = sod(1) + sod(2)+sod(3) + sod(4)+ +sod(n);
+long long sum_all_divisors(long long num)
+{
+ long long sum = 0;
+ for (long long i = 1; i <= sqrt(num); i++) {
+ long long t1 = i * (num / i - i + 1);
+ long long t2 = (((num / i) * (num / i + 1)) / 2)
+ - ((i * (i + 1)) / 2);
+ sum += t1 + t2;
+ }
+ return sum;
+}
+3. If gcd(x,n) = 1 then gcd(n-x,n) = 1;
+4.logk(number) =log10(number)/log10(k)
+// This is used for base
+conversion from decimal to k base.
+\end{lstlisting}
+\subsection{ Combinatorics}
+\begin{enumerate}
+  \item $\sum_{0 \leq k \leq n} \binom{n-k}{k}=F i b_{n+1}$
+  \item $\binom{n}{k}=\binom{n}{n-k}$
+  \item $\binom{n}{k}+\binom{n}{k+1}=\binom{n+1}{k+1}$
+  \item $k\binom{n}{k}=n\binom{n-1}{k-1}$
+  \item $\binom{n}{k}=\frac{n}{k}\binom{n-1}{k-1}$
+  \item $\sum_{i=0}^{n}\binom{n}{i}=2^{n}$
+  \item $\sum_{i \geq 0}\binom{n}{2 i}=2^{n-1}$
+  \item $\sum_{i \geq 0}\binom{n}{2 i+1}=2^{n-1}$
+  \item $\sum_{i=0}^{k}(-1)^{i}\binom{n}{i}=(-1)^{k}\binom{n-1}{k}$
+  \item $\sum_{i=0}^{k}\binom{n+i}{i}=\sum_{i=0}^{k}\binom{n+i}{n}=$ $\binom{n+k+1}{k}$
+\end{enumerate}
+\begin{enumerate}
+  \setcounter{enumi}{10}
+  \item $1\binom{n}{1}+2\binom{n}{2}+3\binom{n}{3}+\ldots+$ $n\binom{n}{n}=n 2^{n-1}$
+  \item $1^{2}\binom{n}{1}+2^{2}\binom{n}{2}+3^{2}\binom{n}{3}+\ldots+$ $n^{2}\binom{n}{n}=\left(n+n^{2}\right) 2^{n-2}$
+  \item Vandermonde's Identify: $\sum_{k=0}^{r}\binom{m}{k}\binom{n}{r-k}=\binom{m+n}{r}$
+  \item Hockey-Stick Identify: $n, r \in$ $N, n>r, \sum_{i=r}^{n}\binom{i}{r}=\binom{n+1}{r+1}$
+  \item $\sum_{i=0}^{k}\binom{k}{i}^{2}=\binom{2 k}{k}$
+  \item $\sum_{k=0}^{n}\binom{n}{k}\binom{n}{n-k}=\binom{2 n}{n}$
+  \item $\sum_{k=q}^{n}\binom{n}{k}\binom{k}{q}=2^{n-q}\binom{n}{q}$
+  \item $\sum_{i=0}^{n} k^{i}\binom{n}{i}=(k+1)^{n}$
+  \item $\sum_{i=0}^{n}\binom{2 n}{i}=2^{2 n-1}+\frac{1}{2}\binom{2 n}{n}$
+  \item $\sum_{i=1}^{n}\binom{n}{i}\binom{n-1}{i-1}=\binom{2 n-1}{n-1}$
+  \item $\sum_{i=0}^{n}\binom{2 n}{i}^{2}=\frac{1}{2}\left(\binom{4 n}{2 n}+\binom{2 n}{n}^{2}\right)$
+  \item Highest Power of 2 that divides ${ }^{2 n} C_{n}$ : Let $x$ be the number of 1 s in the binary representation. Then the number of odd terms will be $2^{x}$. Let it form a sequence. The $n$-th value in the sequence (starting from $n=0$ ) gives the highest power of 2 that divides ${ }^{2 n} C_{n}$.
+\end{enumerate}
+
+\subsection{Pascal Triangle}
+\begin{itemize}
+  \item In a row $p$ where $p$ is a prime number, all the terms in that row except the 1 s are multiples of $p$.
+  \item Parity: To count odd terms in row $n$, convert $n$ to binary. Let $x$ be the number of 1 s in the binary representation. Then the number of odd terms will be $2^{x}$.
+  \item Every entry in row $2^{n}-1, n \geq$ 0 , is odd.
+\end{itemize}
+
+\begin{enumerate}
+  \setcounter{enumi}{23}
+  \item An integer $n \geq 2$ is prime if and only if all the intermediate binomial coefficients $\binom{n}{1},\binom{n}{2}, \ldots,\binom{n}{n-1}$ are divisible by $n$.
+  \item Kummer's Theorem: For given integers $n \geq m \geq 0$ and a prime number $p$, the largest power of $p$ dividing $\binom{n}{m}$ is equal to the number of carries when $m$ is added to $n-m$ in base p. For implementation take inspiration from lucas theorem.
+  \item Number of different binary sequences of length $n$ such that no two 0 's are adjacent $=F i b_{n+1}$
+  \item Combination with repetition: Let's say we choose $k$ elements from an\\
+$n$-element set, the order doesn't matter and each element can be chosen more than once. In that case, the number of different combinations is: $\binom{n+k-1}{k}$
+  \item Number of ways to divide $n$ persons in $\frac{n}{k}$ equal groups i.e. each having size $k$ is
+\end{enumerate}
+
+$$
+\frac{n!}{k!\frac{n}{k}\left(\frac{n}{k}\right)!}=\prod_{n \geq k}^{n-=k}\binom{n-1}{k-1}
+$$
+
+\begin{enumerate}
+  \setcounter{enumi}{28}
+  \item The number non-negative solution of the equation: $x_{1}+x_{2}+x_{3}+\ldots+x_{k}=$ $n$ is $\binom{n+k-1}{n}$
+  \item Number of ways to choose $n$ ids from 1 to b such that every id has distance at least $\mathrm{k}=\left(\frac{b-(n-1)(k-1)}{n}\right)$
+  \item $\sum_{\substack{\left.i=1,3,5, \ldots \\(a-b)^{n}\right)}}^{i \leq n}\binom{n}{i} a^{n-i} b^{i}=\frac{1}{2}\left((a+b)^{n}-\right.$
+  \item $\sum_{i=0}^{n} \frac{\binom{k}{i}}{\binom{n}{i}}=\frac{\binom{n+1}{n-k+1}}{\binom{n}{k}}$
+  \item Derangement: a permutation of the elements of a set, such that no element appears in its original position. Let $d(n)$ be the number of derangements of the identity permutation fo size $n$. $d(n)=(n-1) \cdot(d(n-1)+d(n-2))$ where $d(0)$
+  \item Involutions: permutations such that $p^{2}=$ identity permutation. $a_{0}=a_{1}=$ 1 and $a_{n}=a_{n-1}+(n-1) a_{n-2}$ for $n>1$.\\
+\item Let $T(n, k)$ be the number of permutations of size $n$ for which all cycles have length $\leq k . T(n, k)=$ $\left\{\begin{array}{l}n! \\ n\end{array}\right.$ $\{n \cdot T(n-1, k)-F(n-1, k) \cdot T(n$ Here $F(n, k)=n \cdot(n-1) \cdot \ldots \cdot(n-$ $k+1)$
+
+\end{enumerate}
+\subsection{Lucas Theorem}
+\begin{itemize}
+  \item If $p$ is prime, then $\left(\frac{p^{a}}{k}\right) \equiv 0($ $\bmod p$ )
+  \item For non-negative integers $m$ and $n$ and a prime $p$, the following congruence relation holds: $\left(\frac{m}{n}\right) \equiv \prod_{i=0}^{k}\left(\frac{m_{i}}{n_{i}}\right)(\bmod p)$, where, $m=m_{k} p^{k}+$ $m_{k-1} p^{k-1}+\ldots+m_{1} p+m_{0}$, and $n=n_{k} p^{k}+n_{k-1} p^{k-1}+$ $\ldots+n_{1} p+n_{0}$ are the base $p$ expansions of $m$ and $n$ respectively. This uses the convention that $\left(\frac{m}{n}\right)=0$, when $m<n$.
+\end{itemize}
+
+\begin{enumerate}
+  \setcounter{enumi}{36}
+  \item $\sum_{i=0}^{n}\binom{n}{i} \cdot i^{k}=\sum_{i=0}^{n}\binom{n}{i} \cdot \sum_{j=0}^{k}\left\{\begin{array}{l}k \\ j\end{array}\right\} \cdot i^{j}$\\
+$=\sum_{i=0}^{n}\binom{n}{i} \cdot \sum_{j=0}^{k}\left\{\begin{array}{l}k \\ j\end{array}\right\} \cdot j!\binom{n}{i}=$ $\left(\sum_{i=0}^{n} \frac{n!}{(\ln d(1 i))!} \cdot \sum_{j=0}^{k}\left\{\begin{array}{l}k \\ j\end{array}\right\} \cdot \frac{1}{(i-j)!}=\right.$
+
+$$
+\sum_{i=0}^{n} \sum_{j=0}^{k} \frac{n!}{(n-i)!} \cdot\left\{\begin{array}{l}
+k \\
+j
+\end{array}\right\} \cdot \frac{1}{(i-j)!}=
+$$
+
+$\mathrm{n}!\sum_{i=0}^{n} \sum_{j=0}^{k}\left\{\begin{array}{l}k \\ j\end{array}\right\} \cdot \frac{1}{(n-i)!} \cdot \frac{1}{(i-j)!}=$\\
+$\mathrm{n}!\sum_{i=0}^{n} \sum_{j=0}^{k}\left\{\begin{array}{l}k \\ j\end{array}\right\} \cdot\binom{n-j}{n-i} \cdot \frac{1}{(n-j)!}$\\
+$=\mathrm{n}!\sum_{j=0}^{k}\left\{\begin{array}{l}k \\ j\end{array}\right\} \cdot \frac{1}{(n-j)!} \sum_{i=0}^{n} \cdot\binom{n-j}{n-i}$\\
+$=\sum_{j=0}^{k}\left\{\begin{array}{l}k \\ j\end{array}\right\} \cdot n^{\underline{j}} \cdot 2^{n-j}$ Here $n^{\underline{j}}=$\\
+$P(n, j)=\frac{n!}{(n-j)!}$ and $\left\{\begin{array}{l}k \\ j\end{array}\right\}$ is stirling number of the second kind. So, instead of $O(n)$, now you can calculate the original equation in $O\left(k^{2}\right)$ or even in $O\left(k \log ^{2} n\right)$ using NTT.\\
+\item $\sum_{i=0}^{n-1}\binom{i}{j} x^{i}=x^{j}(1-x)^{-j-1}&\\
+\left(1-x^{n} \sum_{i=0}^{j}\binom{n}{i} x^{j-i}(1-x){ }^{i} \right.$\\
+\item  $x_{0}, x_{1}, x_{2}, x_{3}, \ldots, x_{n} x_{0}+x_{1}, x_{1}+$ $x_{2}, x_{2}+x_{3}, \ldots x_{n} \ldots$ If we continuously do this $n$ times then the polynomial of the first column of the $n$-th row will be
+
+$$
+p(n)=\sum_{k=0}^{n}\binom{n}{k} \cdot x(k)
+$$
+\end{enumerate}
+
+\begin{enumerate}
+  \setcounter{enumi}{39}
+  \item If $P(n)=\sum_{k=0}^{n}\binom{n}{k} \cdot Q(k)$, then,
+\end{enumerate}
+
+$$
+Q(n)=\sum_{k=0}^{n}(-1)^{n-k}\binom{n}{k} \cdot P(k)
+$$
+
+\begin{enumerate}
+  \setcounter{enumi}{40}
+  \item If $P(n)=\sum_{k=0}^{n}(-1)^{k}\binom{n}{k} \cdot Q(k)$,\\
+then,
+
+$$
+Q(n)=\sum_{k=0}^{n}(-1)^{k}\binom{n}{k} \cdot P(k)
+$$
+\end{enumerate}
+
+\subsection{Catalan Numbers}
+\begin{enumerate}
+  \setcounter{enumi}{41}
+  \item $C_{n}=\frac{1}{n+1}\binom{2 n}{n}$
+  \item $C_{0}=1, C_{1}=1$ and $C_{n}=$ $\sum_{k=0}^{n-1} C_{k} C_{n-1-k}$
+  \item Number of correct bracket sequence consisting of $n$ opening and $n$ closing brackets.
+  \item The number of ways to completely parenthesize $n+1$ factors.
+  \item The number of triangulations of a convex polygon with $n+2$ sides (i.e. the number of partitions of polygon into disjoint triangles by using the diagonals).
+  \item The number of ways to connect the $2 n$ points on a circle to form $n$ disjoint i.e. non-intersecting chords.
+  \item The number of monotonic lattice paths from point $(0,0)$ to point $(n, n)$ in a square lattice of size $n \times n$, which do not pass above the main diagonal (i.e. connecting $(0,0)$ to $(n, n)$ ).
+  \item The number of rooted full binary trees with $n+1$ leaves (vertices are not numbered). A rooted binary tree is full if\\
+every vertex has either two children or no children.
+  \item Number of permutations of $1, \ldots, n$ that avoid the pattern 123 (or any of the other patterns of length 3 ); that is, the number of permutations with no three-term increasing sub-sequence. For $n=3$, these permutations are 132, 213, 231, 312 and 321.Forn $=$ 4,theyare1432, 2143, 2413, 2431, 3 and 4321.
+  \item Balanced Parentheses count with prefix: The count of balanced parentheses sequences consisting of $n+k$ pairs of parentheses where the first $k$ symbols are open brackets. Let the number be $C_{n}^{(k)}$, then
+
+$$
+C_{n}^{(k)}=\frac{k+1}{n+k+1}\binom{2 n+k}{n}
+$$
+\end{enumerate}
+
+\subsection{Narayana numbers}
+\begin{enumerate}
+  \setcounter{enumi}{51}
+  \item $N(n, k)=\frac{1}{n}\left(\frac{n}{k}\right)\left(\frac{n}{k-1}\right)$
+  \item The number of expressions containing $n$ pairs of parentheses, which are correctly matched and which contain $k$ distinct nestings. For instance, $N(4,2)=6$ as with four pairs of parentheses six sequences can be created which each contain two times the sub-pattern '()'. Stirling numbers of the first kind
+  \item The Stirling numbers of the first kind count permutations according to their number of cycles (counting fixed points as cycles of length one).
+\end{enumerate}
+
+\subsection{Stirling numbers of the first kind}
+\begin{enumerate}
+  \setcounter{enumi}{54}
+  \item $S(n, k)$ counts the number of permutations of $n$ elements with $k$ disjoint cycles.
+  \item $S(n, k)=(n-1) \cdot S(n-1, k)+$ $S(n-1, k-1)$, where, $S(0,0)=$ $1, S(n, 0)=S(0, n)=0$\\
+42, 321m, 3241, 3412, 3421, 4132, 4213, 42 57. $\sum_{k=0} S(n, k)=n$ !
+  \item The unsigned Stirling numbers may also be defined algebraically, as the coefficient of the rising factorial:\\
+$x^{\bar{n}}=x(x+1) \ldots(x+n-1)=\sum_{k=0}^{n} S(n, k$
+  \item Lets $[n, k]$ be the stirling number of the first kind, then
+
+$$
+[n-k]=\sum_{0 \leq i_{1}<i_{2}<i_{k}<n} i_{1} i_{2} \ldots i_{k}
+$$
+\end{enumerate}
+
+\subsection{Stirling numbers of the second kind}
+\begin{enumerate}
+  \setcounter{enumi}{59}
+  \item Stirling number of the second kind is the number of ways to partition a set of n objects into k non-empty subsets.
+  \item $S(n, k)=k \cdot S(n-1, k)+S(n-1, k-$ 1), where $S(0,0)=1, S(n, 0)=$ $S(0, n)=0$
+  \item $S(n, 2)=2^{n-1}-1$
+  \item $S(n, k) \cdot k!=$ number of ways to color $n$ nodes using colors from 1 to $k$ such that each color is used at least once.
+  \item An $r$-associated Stirling number of the second kind is the number of ways to partition a set of $n$ objects into $k$ subsets, with each subset containing at least $r$ elements. It is denoted by $S_{r}(n, k)$ and obeys the recurrence relation. $S_{r}(n+1, k)=k S_{r}(n, k)+$ $\binom{n}{r-1} S_{r}(n-r+1, k-1)$
+  \item Denote the n objects to partition by the integers $1,2, \ldots, n$. Define the reduced Stirling numbers of the second kind, denoted $S^{d}(n, k)$, to be the number of ways to partition the integers $1,2, \ldots, n$ into k nonempty subsets such that all elements in each subset have pairwise distance at least d. That is, for any integers $i$ and $j$ in a given subset, it is required that $|i-j| \geq d$. It has been shown that these numbers satisfy, $S^{d}(n, k)=$ $S(n-d+1, k-d+1), n \geq k \geq d$
+\end{enumerate}
+
+\subsection{Bell number}
+\begin{enumerate}
+  \setcounter{enumi}{65}
+  \item Counts the number of partitions of a set.
+  \item $B_{n+1}=\sum_{k=0}^{n}\left(\frac{n}{k}\right) \cdot B_{k}$
+  \item $B_{n}=\sum_{k=0}^{n} S(n, k)$, where $S(n, k)$ is stirling number of second kind.
+\end{enumerate}
+
+\subsection{Math}
+\begin{enumerate}
+  \setcounter{enumi}{68}
+  \item $a b \bmod a c=a(b \bmod c)$
+  \item $\sum_{i=1}^{n} i^{2}=1^{2}+2^{2}+3^{2}+\ldots+n^{2}=$ $\frac{n \cdot(n+1) \cdot(2 n+1)}{6}$
+  \item $\sum_{i=1}^{n} i^{3}=1^{3}+2^{3}+3^{3}+\ldots+n^{3}=$ $\left(\frac{n \cdot(n+1)}{2}\right)^{2}$
+  \item $\sum_{i=0}^{n} i \cdot i!=(n+1)!-1$.
+  \item $a^{k}-b^{k}=(a-b) \cdot\left(a^{k-1} b^{0}+a^{k-2} b^{1}+\right.$ $\left.\ldots+a^{0} b^{k-1}\right)$
+  \item $\min (a+b, c)=a+\min (b, c-a)$
+  \item $|a-b|+|b-c|+|c-a|=$ $2(\max (a, b, c)-\min (a, b, c))$
+  \item $a \cdot b \leq c \rightarrow a \leq\left\lfloor\frac{c}{b}\right\rfloor$ is correct
+  \item $a \cdot b<c \rightarrow a<\left\lfloor\frac{c}{b}\right\rfloor$ is incorrect
+  \item $a \cdot b \geq c \rightarrow a \geq\left\lfloor\frac{c}{b}\right\rfloor$ is correct
+  \item $a \cdot b>c \rightarrow a>\left\lfloor\frac{c}{b}\right\rfloor$ is correct
+  \item For positive integer $n$, and arbitrary real numbers $m, x,\left\lfloor\frac{\lfloor x / m\rfloor}{n}\right\rfloor$ $\left\lfloor\frac{x}{m n}\right\rfloor\left\lceil\frac{\lceil x / m\rceil}{n}\right\rceil=\left\lceil\frac{x}{m n}\right\rceil$
+  \item Lagrange's identity:\\
+$\left(\sum_{k=1}^{n} a_{k}^{2}\right)\left(\sum_{k=1}^{n} b_{k}^{2}\right)-\left(\sum_{k=1}^{n} a_{k} b_{k}\right)^{2}$\\
+$\sum_{i=1}^{n} i a^{i}=\frac{a\left(n a^{n+1}-(n+1) a^{n}+1\right)}{(a-1)^{2}}$
+  \item Vieta's formulas: Any general polynomial of degree $n$\\
+$p(x)=a_{n} x^{n}+a_{n-1} x^{n-1}+\ldots+a_{1} x+a_{0}$\\
+(with the coefficients being real or complex numbers and $a_{n} \neq 0$ ) is known by the fundamental theorem of algebra to have $n$ (not necessarily distinct) complex roots $r_{1}, r_{2}, \ldots, r_{n}$.\\
+$\left\{\begin{array}{l}r_{1}+r_{2}+\ldots+r_{n-1}+r_{n}=-\frac{a_{n-1}}{a_{n}} \\ \left(r_{1} r_{2}+r_{1} r_{3}+\ldots+r_{1} r_{n}\right)+\left(r_{2} r_{3}\right. \\ \vdots \\ r_{1} r_{2} \ldots r_{n}=(-1)^{n} \frac{a_{0}}{a_{n}} .\end{array}\right.$\\
+Vieta's formulas can equivalently be written as\\
+$\sum_{1 \leq i_{1}<i_{2}<\ldots<i_{k} \leq n}\left(\prod_{j=1}^{k} r_{i_{j}}\right)=(-1)^{k} \frac{q_{n-k}}{a_{n}}$,
+  \item We are given n numbers $a_{1}, a_{2}, \ldots, a_{n}$ and our task is to find a value $x$ that minimizes the sum,\\
+$\left|a_{1}-x\right|+\left|a_{2}-x\right|+\ldots+\left|a_{n}-x\right|$\\
+optimal $x=$ median of the array. if $n$ is even $x=[$ left median,right median] $\sum^{n-1} \mathrm{i} e^{n}$ every number ${ }_{2}$ in this range will $=\frac{1}{2} \sum_{i=1}^{n}\left(a_{1} \sum_{j=1, j \neq i}^{n}\right)^{2}\left(d_{i}\left(a_{2}-a_{j} b_{i}^{2}\right)^{2} \ldots+\left(a_{n}-x\right)^{2}\right.$\\
+$\operatorname{optimal} x=\frac{\left(a_{1}+a_{2}+\ldots+a_{n}\right)}{n}$
+  \item Given an array a of $n$ non-negative integers. The task is to find the sum of the product of elements of all the possible subsets. It is equal to the product of $\left(a_{i}+1\right)$ for all $a_{i}$
+  \item Pentagonal number theorem: In mathematics, the pentagonal number theorem states that
+
+$$
+\begin{gathered}
+\prod_{n=1}^{\infty}\left(1-x^{n}\right)=\prod_{k=-\infty}^{\infty}(-1)^{k} x^{\frac{k(3 k-1)}{2}} \\
+\left.4+\ldots+r_{2} r_{n}\right)+\ldots+r_{n-1} r_{n}=\frac{a_{n-2}}{a_{n}} \\
+\left(x^{\frac{k(3 k+1)}{2}}+x^{\frac{k(3 k-1)}{2}}\right)
+\end{gathered}
+$$
+
+In other words,\\
+$(1-x)\left(1-x^{2}\right)\left(1-x^{3}\right) \cdots=1-x-x^{2}+$
+
+The exponents $1,2,5,7,12, \cdots$ on the right hand side are given by the formula $g_{k}=\frac{k(3 k-1)}{2}$ for $k=1,-1,2,-2,3, \cdots$ and are called (generalized) pentagonal numbers. It is useful to find the partition number in $O(n \sqrt{n})$
+
+\end{enumerate}
+\subsection{Fibonacci Number}
+\begin{enumerate}
+  \setcounter{enumi}{86}
+  \item $F_{0}=0, F_{1}=1$ and $F_{n}=F_{n-1}+$ $F_{n-2}$
+  \item $F_{n}=\sum_{k=0}^{\left\lfloor\frac{n-1}{2}\right\rfloor}\binom{n-k-1}{k}$
+  \item $F_{n}=\frac{1}{\sqrt{5}}\left(\frac{1+\sqrt{5}}{2}\right)^{n}$\\
+$\frac{1}{\sqrt{5}}\left(\frac{1-\sqrt{5}}{2}\right)^{n}$
+  \item $\sum_{i=1}^{n} F_{i}=F_{n+2}-1$
+  \item $\sum_{i=0}^{n-1} F_{2 i+1}=F_{2 n}$
+  \item $\sum_{i=1}^{n} F_{2 i}=F_{2 n+1}-1$
+  \item $\sum_{i=1}^{n} F_{i}^{2}=F_{n} F_{n+1}$
+  \item $F_{m} F_{n+1}-F_{m-1} F_{n}=(-1)^{n} F_{m-n}$ $F_{2 n}=F_{n+1}^{2}-F_{n-1}^{2}=F_{n}\left(F_{n+1}+\right.$ $F_{n-1}$ )
+  \item $F_{m} F_{n}+F_{m-1} F_{n-1}=F_{m+n-1}$ $F_{m} F_{n+1}+F_{m-1} F_{n}=F_{m+n}$
+  \item A number is Fibonacci if and only if one or both of $\left(5 \cdot n^{2}+4\right)$ or $\left(5 \cdot n^{2}-4\right)$ is a perfect square
+  \item Every third number of the sequence is even and more generally, every $k^{t h}$ number of the sequence is a multiple of $F_{k}$
+  \item $\operatorname{gcd}\left(F_{m}, F_{n}\right)=F_{g c d(m, n)}$
+  \item Any three consecutive Fibonacci numbers are pairwise coprime, which means that, for every $\mathrm{n}, \operatorname{gcd}\left(F_{n}, F_{n+1}\right)=$ $\operatorname{gcd}\left(F_{n}, F_{n+2}\right), \operatorname{gcd}\left(F_{n+1}, F_{n+2}\right)=$ 1
+  \item If the members of the Fibonacci sequence are taken $\bmod n$, the resulting sequence is periodic with period at most $6 n$.
+\end{enumerate}
+
+\subsection{Pythagorean Triples}
+\begin{enumerate}
+  \setcounter{enumi}{100}
+  \item A Pythagorean triple consists of three positive integers $a, b$, and $C$, such that $a^{2}+b^{2}=c^{2}$. Such a triple is commonly written ( $a, b, c$ )
+  \item Euclid's formula is a fundamental formula for generating Pythagorean triples given an arbitrary pair of integers m and n with $m>n>0$. The formula states that the integers\\
+$a=m^{2}-n^{2}, b=2 m n, c=m^{2}+n^{2}$\\
+form a Pythagorean triple. The triple generated by Euclid's formula is primitive if and only if $m$ and $n$ are coprime and not both odd. When both $m$ and n are odd, then $\mathrm{a}, \mathrm{b}$, and c will be even, and the triple will not be primitive; however, dividing $\mathrm{a}, \mathrm{b}$, and c by 2 will yield a primitive triple when m and n are coprime and both odd.
+  \item The following will generate all Pythagorean triples uniquely:\\
+$a=k \cdot\left(m^{2}-n^{2}\right), b=k \cdot(2 m n), c=$ where $\mathrm{m}, \mathrm{n}$, and k are positive integers with $m>n$, and with m and n coprime and not both odd.
+  \item Theorem:The number of Pythagorean triples a,b, n with $\operatorname{maxa}, b, n=n$ is given by
+
+$$
+\frac{1}{2}\left(\prod_{p^{\alpha}| | n}(2 \alpha+1)-1\right)
+$$
+
+where the product is over all prime divisors p of the form $4 k+1$. The notation $p^{\alpha}| | n$ stands for the highest exponent $\alpha$ for which $p^{\alpha}$ divides $n$ Example: For $n=2 \cdot 3^{2} \cdot 5^{3} \cdot 7^{4} \cdot 11^{5} \cdot 13^{6}$, the number of Pythagorean triples with hypotenuse n is $\frac{1}{2}(7.13-1)=45$. To obtain a formula for the number of Pythagorean triples with hypotenuse less than a specific positive integer N , we may add the numbers corresponding to each $n<N$ given by the Theorem. There is no simple way to compute this as a function of N .
+
+\end{enumerate}
+\subsection{Sum of Squares Function}
+\begin{enumerate}
+  \setcounter{enumi}{104}
+  \item The function is defined as $r_{k}(n)=\mid\left(a_{1}, a_{2}, \ldots, a_{k}\right) \in \mathbf{Z}^{\mathbf{k}}: n=$
+  \item The number of ways to write a natural number as sum of two squares is given by $r_{2}(n)$. It is given explicitly by $r_{2}(n)=4\left(d_{1}(n)-d_{3}(n)\right)$\\
+where d1(n) is the number of divisors of n which are congruent with $\left(m^{2} 1 n^{2}\right.$ modulo 4 and $\mathrm{d} 3(\mathrm{n})$ is the number ${ }^{n}$ ol divisors of n which are congruent with 3 modulo 4 . The prime factorization $n=2^{g} p_{1}^{f_{1}} p_{2}^{f_{2}} \ldots q_{1}^{h_{1}} q_{2}^{h_{2}} \ldots$, where $p_{i}$ are the prime factors of the form $p_{i} \equiv 1(\bmod 4)$, and $q_{i}$ are the prime factors of the form $q_{i} \equiv 3(\bmod$ 4) gives another formula $r_{2}(n)=$ $4\left(f_{1}+1\right)\left(f_{2}+1\right) \ldots$, if all exponents $h_{1}, h_{2}, \ldots$ are even. If one or more $h_{i}$ are odd, then $r_{2}(n)=0$.
+  \item The number of ways to represent n as the sum of four squares is eight times the sum of all its divisors which are not divisible by 4 , i.e. $r_{4}(n)=8 \sum d \mid n ; 4 d d r 8(n)=$ $16 \sum_{d \mid n}(-1)^{n+d} d^{3}$
+\end{enumerate}
+
+\subsection{Number Theory}
+\begin{enumerate}
+  \setcounter{enumi}{107}
+  \item for $i>j, \operatorname{gcd}(i, j)=\operatorname{gcd}(i-j, j)$ $\leq(i-j)$
+  \item $\sum_{x=1}^{n}\left[d \mid x^{k}\right]=\left\lfloor\frac{n}{\left.\prod_{i=0} p_{i} ^\frac{e_{i}}{k}\right\rceil}\right\rfloor$, where\\
+$d=\prod_{i=0} p_{i}^{e_{i}}$. Here, $[a \mid b]$ means if $a$ divides $b$ then it is 1 , otherwise it is 0 .\\
+\item  The number of lattice points on segment $\left(x_{1}, y_{1}\right)$ to $\left(x_{2}, y_{2}\right)$ is $\operatorname{gcd}\left(a b s\left(x_{1}-x_{2}\right), a b s\left(y_{1}-y_{2}\right)\right)+1$
+  \item $(n-1)!\bmod n=n-1$ if n is prime, 2 if $n=4,0$ otherwise.
+  \item A number has odd number of divisors if it is perfect square
+  \item The sum of all divisors of a natural number n is odd if and only if $n=$ $2^{r} \cdot k^{2}$ where $r$ is non-negative and $k$ is positive integer.
+  \item Let $a$ and $b$ be coprime positive integers, and find integers $a \prime$ and $b \prime$ such that $a a \prime \equiv 1 \bmod b$ and $b b \prime \equiv 1$ $\bmod a$. Then the number of representations of a positive integers (n) as a non negative linear combination of $a$ and $b$ is
+
+$$
+\frac{n}{a b}-\left\{\frac{b \prime n}{a}\right\}-\left\{\frac{a \prime n}{b}\right\}+1
+$$
+
+Here, $x$ denotes the fractional part of $x$.\\
+
+\item $\sum_{i=1}^{a} \sum_{j=1}^{b} \sum_{k=1}^{c} d(i \cdot j \cdot k)=\sum_{\operatorname{gcd}(i, j)=\operatorname{gcd}(j, k)=\operatorname{gcd}(k,i)=1}$\\
+Here, $d(x)=$ number of divisors of $x$.\\
+\item Gauss's generalization of Wilson's theorem: Gauss proved that,\\
+$\prod_{\substack{k=1 \\ \operatorname{gcd}(k, m)=1}}^{m} k \equiv\left\{\begin{array}{rll}-1 & (\bmod m) & \text { if } \\ 1 & (\bmod m) & \text { ot }\end{array}\right.$\\
+where $p$ represents an odd prime and $\alpha$ a positive integer. The values of $m$ for which the product is -1 are precisely the ones where there is a primitive root modulo $m$.
+\end{enumerate}
+
+\subsection{ Divisor Function}
+\begin{enumerate}
+  \setcounter{enumi}{116}
+  \item $\sigma_{x}(n)=\sum_{d \mid n} d^{x}$
+  \item It is multiplicative i.e if $\operatorname{gcd}(a, b)=$ $1 \rightarrow \sigma_{x}(a b)=\sigma_{x}(a) \sigma_{x}(b)$.
+  \item
+
+$$
+\sigma_{x}(n)=\prod_{i=1}^{\tau} \frac{p_{i}^{\left(a_{i}+1\right) x}-1}{p_{i}^{x}-1}
+$$
+\end{enumerate}
+
+\subsection{Divisor Summatory Function}
+\begin{itemize}
+  \item Let $\sigma_{0}(k)$ be the number of divisors of $k$.
+  \item $D(x)=\sum_{n \leq x} \sigma_{0}(n)$
+  \item $D(x)=\sum_{k=1}^{x}\left\lfloor\frac{x}{k}\right\rfloor=2 \sum_{k=1}^{u}\left\lfloor\frac{x}{k}\right\rfloor-$ $u^{2}$, where $u=\sqrt{x}$
+  \item $D(n)=$ Number of increasing arithmetic progressions where $\left.\left|\frac{q}{h}\right|+\frac{b_{1}}{-1} \right\rvert\, s^{c}$ the second or later kerm, (i.e? The last term, starting term can be any positive integer $\leq n$. For example, $D(3)=5$ and there are 5 such arithmetic progressions: $(1,2,3,4) ;(2,3,4) ;(1,4) ;(2,4)$
+\end{itemize}
+
+1241, plet $2 q_{n} k$ ) be the sum of divisors of k .\\
+Then, $\sum_{k=1}^{n} \sigma_{1}(k)=\sum_{k=1}^{n} k\left\lfloor\frac{n}{k}\right\rfloor$\\
+122. $\prod_{d \mid n} d=n^{\frac{\sigma_{0}}{2}}$ if $n$ is not a perfect square, and $=\sqrt{n} \cdot n^{\frac{\sigma_{0}-1}{2}}$ if $n$ is a perfect square.
+
+\subsection{Euler's Totient function}
+\begin{enumerate}
+  \setcounter{enumi}{122}
+  \item The function is multiplicative. This means that if $\operatorname{gcd}(m, n)=1, \phi(m$. $n)=\phi(m) \cdot \phi(n)$.
+  \item $\phi(n)=n \prod_{p \mid n}\left(1-\frac{1}{p}\right)$
+  \item If p is prime and ( $\mathrm{k} \geq$ 1), then, $\phi\left(p^{k}\right)=p^{k-1}(p-1)=$ $p^{k}\left(1-\frac{1}{p}\right)$
+  \item $J_{k}(n)$, the Jordan totient function, is the number of $k$-tuples of positive integers all less than or equal to $n$ that form a coprime $(k+1)$-tuple together with $n$. It is a generalization of Euler's totient, $\phi(n)=J_{1}(n) . J_{k}(n)=$ $n^{k} \prod_{p \mid n}\left(1-\frac{1}{p^{k}}\right)$
+  \item $\sum_{d \mid n} J_{k}(d)=n^{k}$
+  \item $\sum_{d \mid n} \phi(d)=n$\\
+$\begin{aligned} & \text { 129. }\end{aligned} \phi(n)=\sum_{d \mid n} \mu(d) \cdot \frac{n}{d}=n \sum_{d \mid n} \frac{\mu(d)}{d}$
+  \item $\phi(n)=\sum_{d \mid n} d \cdot \mu\left(\frac{n}{d}\right)$
+  \item $a|b \rightarrow \varphi(a)| \varphi(b)$
+  \item $n \mid \varphi\left(a^{n}-1\right)$ for $a, n>1$
+  \item $\varphi(m n)=\varphi(m) \varphi(n) \cdot \frac{d}{\varphi(d)}$ where\\
+$d=\operatorname{gcd}(m, n)$ Note the special cases
+
+$$
+\begin{gathered}
+\varphi(2 m)= \begin{cases}2 \varphi(m) & ; \text { if mis even } \\
+\varphi(m) & \text {; if mis odd }\end{cases} \\
+\varphi\left(n^{m}\right)=n^{m-1} \varphi(n)
+\end{gathered}
+$$
+
+\end{enumerate}
+\begin{enumerate}
+  \setcounter{enumi}{133}
+  \item $\varphi(\operatorname{lcm}(m, n)) \cdot \varphi(\operatorname{gcd}(m, n))=$ $\varphi(m) \cdot \varphi(n)$ Compare this to the formula $\operatorname{lcm}(m, n) \cdot \operatorname{gcd}(m, n)=m \cdot n$
+  \item $\varphi(n)$ is even for $n \geq 3$. Moreover, if if $n$ has $r$ distinct odd prime factors, $2^{r} \mid \varphi(n)$
+  \item $\sum_{d \mid n} \frac{\mu^{2}(d)}{\varphi(d)}=\frac{n}{\varphi(n)}$
+  \item $\sum_{1 \leq k \leq n, \operatorname{gcd}(k, n)=1} k=\frac{1}{2} n \varphi(n)$ for $n>1$
+  \item $\frac{\varphi(n)}{n}=\frac{\varphi(\operatorname{rad}(n))}{\operatorname{rad}(n)}$ where $\operatorname{rad}(n)=$ $\prod_{p \mid n, p \text { prime }} p$
+  \item $\phi(m) \geq \log _{2} m$
+  \item $\phi(\phi(m)) \leq \frac{m}{2}$
+  \item When $x \geq \log _{2} m$, then\\
+$n^{x} \quad \bmod m=n^{\phi(m)+x} \bmod \phi(m)$
+  \item $\sum \operatorname{gcd}(k-1, n)=$ $1 \leq k \leq n, \operatorname{gcd}(k, n)=1$ $\varphi(n) d(n)$ where $d(n)$ is number of divisors. Same equation for $\operatorname{gcd}(a \cdot k-$ $1, n)$ where $a$ and $n$ are coprime.
+  \item For every $n$ there is at least one other integer $m \neq n$ such that $\varphi(m)=$ $\varphi(n)$.
+  \item $\sum_{i=1}^{n} \varphi(i) \cdot\left\lfloor\frac{n}{i}\right\rfloor=\frac{n *(n+1)}{2}$
+  \item If $\operatorname{gcd}(\mathrm{i}, \mathrm{n})=\mathrm{d}$; where $1 \leq i \leq n-1$ then,there are $\varphi(n / d)$ possible values of $i$.
+  \item $\sum_{i=1, i \% 2 \neq 0}^{n} \varphi(i) \cdot\left\lfloor\frac{n}{i}\right\rfloor=\sum_{k \geq 1}\left[\frac{n}{2^{k}}\right]^{2}$. Note that [] is used here to denote round operator not floor or ceil
+  \item
+
+$\sum_{i=1}^{n} \sum_{j=1}^{n} i j[\operatorname{gcd}(i, j)=1]=\sum_{i=1}^{n} \varphi(i) i^{2}$\\
+148. Average of coprimes of $n$ which are less than $n$ is $\frac{n}{2}$.
+\end{enumerate}
+
+\subsection{Mobius Function and Inversion}
+\begin{enumerate}
+  \setcounter{enumi}{148}
+  \item For any positive integer $n$, define $\mu(n)$ as the sum of the primitive $n^{\text {th }}$ roots of unity. It has values in $-1,0,1$ depending on the factorization of $n$ into prime factors:
+
+\begin{itemize}
+  \item $\mu(n)=1$ if $n$ is a square-free positive integer with an even number of prime factors.
+  \item $\mu(n)=-1$ if $n$ is a squarefree positive integer with an odd number of prime factors.
+  \item $\mu(n)=0$ if $n$ has a squared prime factor.
+  \item It is a multiplicative function.
+\end{itemize}
+
+\item
+
+$$
+\sum_{d \mid n} \mu(d)= \begin{cases}1 & ; n=1 \\ 0 & ; n>0\end{cases}
+$$
+\end{enumerate}
+
+\begin{enumerate}
+  \setcounter{enumi}{150}
+  \item $\sum_{n=1}^{N} \mu^{2}(n)=\sum_{n=1}^{\sqrt{N}} \mu(k) \cdot\left\lfloor\frac{N}{k^{2}}\right\rfloor$ This is also the number of square-free numbers $\leq n$
+  \item Mobius inversion theorem: The classic version states that if g and f are arithmetic functions satisfying $g(n)=\sum_{d \mid n} f(d)$ for every integer $n \geq 1$ then $g(n)=\sum_{d \mid n} \mu(d) g\left(\frac{n}{d}\right)$ for every integer $n \geq 1$
+  \item If $F(n)=\prod_{d \mid n} f(d)$, then $F(n)=$ $\prod_{d \mid n} F\left(\frac{n}{d}\right)^{\mu(d)}$
+  \item $\sum_{d \mid n} \mu(d) \phi(d)=\prod_{j=1}^{K}\left(2-P_{j}\right)$ where $p_{j}$ is the primes factorization of $d$
+  \item If $F(n)$ is multiplicative, $F \not \equiv 0$, then $\sum_{d \mid n} \mu(d) f(d)=\prod_{i=1}\left(1-f\left(P_{i}\right)\right)$. where $p_{i}$ are primes of $n$.
+\end{enumerate}
+
+\subsection{ GCD and LCM}
+\begin{enumerate}
+  \setcounter{enumi}{155}
+  \item $\operatorname{gcd}(a, 0)=a$
+  \item $\operatorname{gcd}(a, b)=\operatorname{gcd}(b, a \bmod b)$
+  \item Every common divisor of $a$ and $b$ is a divisor of $\operatorname{gcd}(a, b)$.
+  \item if $m$ is any integer, then $\operatorname{gcd}(a+$ $m \cdot b, b)=\operatorname{gcd}(a, b)$
+  \item The gcd is a multiplicative function in the following sense: if $a_{1}$ and $a_{2}$ are relatively prime, then $\operatorname{gcd}\left(a_{1} \cdot a_{2}, b\right)=$ $\operatorname{gcd}\left(a_{1}, b\right) \cdot \operatorname{gcd}\left(a_{2}, b\right)$.
+  \item $\operatorname{gcd}(a, b) \cdot \operatorname{lcm}(a, b)=|a \cdot b|$
+  \item $\operatorname{gcd}(a, \operatorname{lcm}(b, c))$\\
+$\operatorname{lcm}(\operatorname{gcd}(a, b), \operatorname{gcd}(a, c))$.
+  \item $\operatorname{lcm}(a, \operatorname{gcd}(b, c))$ $\operatorname{gcd}(\operatorname{lcm}(a, b), \operatorname{lcm}(a, c))$.
+  \item For non-negative integers $a$ and $b$, where $a$ and $b$ are not both zero, $\operatorname{gcd}\left(n^{a}-1, n^{b}-1\right)=n^{\operatorname{gcd}(a, b)}-1$
+  \item $\operatorname{gcd}(a, b)=\sum_{k \mid a \text { and } k \mid b} \phi(k)$
+  \item $\sum_{i=1}^{n}[\operatorname{gcd}(i, n)=k]=\phi\left(\frac{n}{k}\right)$
+  \item $\sum_{k=1}^{n} \operatorname{gcd}(k, n)=\sum_{d \mid n} d \cdot \phi\left(\frac{n}{d}\right)$
+  \item $\sum_{k=1}^{n} x^{\operatorname{gcd}(k, n)}=\sum_{d \mid n} x^{d} \cdot \phi\left(\frac{n}{d}\right)$
+  \item $\sum_{k=1}^{n} \frac{1}{\operatorname{gcd}(k, n)}=\sum_{d \mid n} \frac{1}{d} \cdot \phi\left(\frac{n}{d}\right)=$\\
+$\frac{1}{n} \sum_{d \mid n} d \cdot \phi(d)$
+  \item $\sum_{k=1}^{n} \frac{k}{\operatorname{gcd}(k, n)}=\frac{n}{2} \cdot \sum_{d \mid n} \frac{1}{d} \cdot \phi\left(\frac{n}{d}\right)=$ $\frac{n}{2} \cdot \frac{1}{n} \cdot \sum_{d \mid n} d \cdot \phi(d)$
+  \item $\sum_{k=1}^{n} \frac{n}{\operatorname{gcd}(k, n)}=2 * \sum_{k=1}^{n} \frac{k}{\operatorname{gcd}(k, n)}-$ 1 , for $n>1$
+  \item $\sum_{i=1}^{n} \sum_{j=1}^{n}[\operatorname{gcd}(i, j)=1]=$ $\sum_{d=1}^{n} \mu(d)\left\lfloor\frac{n}{d}\right\rfloor^{2}$
+  \item $\sum_{i=1}^{n} \sum_{j=1}^{n} \operatorname{gcd}(i, j)=\sum_{d=1}^{n} \phi(d)\left\lfloor\frac{n}{d}\right\rfloor^{2}$
+  \item $\sum_{i=1}^{n} \sum_{j=1}^{n} i \cdot j[\operatorname{gcd}(i, j)=1]=$ $\sum_{i=1}^{n} \phi(i) i^{2}$
+  \item $F(n)=\sum_{i=1}^{n} \sum_{j=1}^{n} \operatorname{lcm}(i, j)=$ $\sum_{l=1}^{n}\left(\frac{\left(1+\left\lfloor\frac{n}{l}\right\rfloor\right)\left(\left\lfloor\frac{n}{l}\right\rfloor\right)}{2}\right)^{2} \sum_{d \mid l} \mu(d) l d$
+  \item $\operatorname{gcd}\left(A_{L}, A_{L+1}, \ldots, A_{R}\right)$ $\operatorname{gcd}\left(A_{L}, A_{L+1}-A_{L}, \ldots, A_{R}-\right.$ $\left.A_{R-1}\right)$.'
+  \item Given n, If $S U M=\operatorname{LCM}(1, n)+$ $\operatorname{LCM}(2, n)+\ldots+\operatorname{LCM}(n, n)$ then $\mathrm{SUM}=\frac{n}{2}\left(\sum_{d \mid n}(\phi(d) \times d)+1\right.$
+\end{enumerate}
+
+\subsection{Extra Miscellaneous}
+\begin{enumerate}
+  \setcounter{enumi}{177}
+  \item $a+b=a \oplus b+2(a \& b)$.
+  \item $a+b=a \mid b+a \& b$
+  \item $a \oplus b=a \mid b-a \& b$
+  \item $k_{t h}$ bit is set in $x$ iff $x \bmod 2^{k-1}-x$ $\bmod 2^{k} \neq 0\left(=2^{k}\right.$ to be exact). It comes handy when you need to look at the bits of the numbers which are pair sums or subset sums etc.
+  \item $n \bmod 2^{i}=n \&\left(2^{i}-1\right)$
+  \item $1 \oplus 2 \oplus 3 \oplus \cdots \oplus(4 k-1)=0$ for any $k \geq 0$
+  \item Erdos Gallai Theorem: The degree sequence of an undirected graph is the non-increasing sequence of its vertex degrees A sequence of non-negative integers $d_{1} \geq d_{2} \geq \cdots \geq d_{n}$ can be represented as the degree sequence of finite simple graph on $n$ vertices if and only if $d_{1}+d_{2}+\cdots+d_{n}$ is even and $\sum_{i=1}^{k} d_{i} \leq k(k-1)+\sum_{i=k+1}^{n} \min \left(d_{i}, k\right)$ holds for every $k$ in $1 \leq k \leq n$.
+\end{enumerate}
+
+\subsection{Properties of mod:}
+\begin{enumerate}
+  \setcounter{enumi}{184}
+  \item If $a c \equiv b c(\bmod m)$, then $a \equiv b$ $(\bmod m / \operatorname{gcd}(c, m))$.
+  \item If $m n \equiv 0(\bmod n)$, then the smallest number $m$ is equal to $\operatorname{lcm}(n, d)$.
+  \item If $p$ is prime, then $(x+y)^{p} \equiv x^{p}+y^{p}$ $(\bmod p)$.
+  \item $a b \equiv a(b \bmod c)(\bmod a c)$.
+\end{enumerate}
+
+\subsection{Area Formulas}
+\begin{itemize}
+  \item Ellipse: $A=\pi a b$
+  \item $a, b$ : Semi-axes
+  \item Regular Polygon: $A=\frac{1}{2} n R r$
+  \item $n$ : Sides
+  \item R: Circumradius
+  \item $r$ : Apothem
+\end{itemize}
+
+\subsection{Volume Formulas}
+\begin{itemize}
+  \item Rectangular Prism: $V=l w h$
+  \item $l, w, h$ : Dimensions
+  \item Sphere: $V=\frac{4}{3} \pi r^{3}$
+  \item $r$ : Radius
+  \item Cone: $V=\frac{1}{3} \pi r^{2} h$
+\end{itemize}
+
+$$
+\begin{aligned}
+& \text { - } r \text { : Radius } \\
+& \text { - } h \text { : Height }
+\end{aligned}
+$$
+
+\begin{itemize}
+  \item Pyramid: $V=\frac{1}{3} b h$
+  \item $b$ : Base area
+  \item $h$ : Height
+\end{itemize}
+
+\begin{enumerate}
+  \setcounter{enumi}{188}
+  \item Sector Area: area $=\frac{\theta}{2} \cdot r^{2}$ (angle in radians)
+  \item Chord Length: $d=2 \cdot r \cdot \sin \left(\frac{\theta}{2}\right)$ (angle in radians)\\
+$d=2 \cdot \sqrt{r^{2}-x^{2}}$ (where $x$ is the perpendicular distance from the center to the chord)
+  \item Law of Cosines: $c^{2}=a^{2}+b^{2}-$ $2 a b \cos \gamma$
+  \item Law of Sines: $\frac{a}{\sin \alpha}=\frac{b}{\sin \beta}=\frac{c}{\sin \gamma}$
+  \item Altitude: $h=\frac{2 A}{b}=\frac{2 A}{a \sin \beta}=\frac{2 A}{c \cos \alpha}$
+  \item Median: $m_{a}=\frac{1}{2} \sqrt{2 b^{2}+2 c^{2}-a^{2}}$
+  \item Circumradius: $R=\frac{a b c}{4 A}=\frac{a}{2 \sin \alpha}=$ $\frac{b}{2 \sin \beta}=\frac{c}{2 \sin \gamma}$
+  \item Inradius: $\quad r=\frac{A}{s}=$ $\frac{\sqrt{(s-a)(s-b)(s-c)}}{s}$
+  \item Angle Bisector: $\frac{B D}{D C}=\frac{A B}{A C}$
+  \item Pick's Theorem: $A=I+\frac{B}{2}-1$ (where $A$ is the area of the polygon, $I$ is the number of interior lattice points, and $B$ is the number of boundary points)
+\end{enumerate}
+
+\subsection{Geometry Theorems}
+\begin{enumerate}
+  \setcounter{enumi}{198}
+  \item Law of Cosines: $c^{2}=a^{2}+b^{2}-$ $2 a b \cos (C)$
+  \item Law of Sines: $\frac{a}{\sin (A)}=\frac{b}{\sin (B)}=$ $\frac{c}{\sin (C)}$
+\end{enumerate}
+\end{multicols}
+
+
+\end{document}
